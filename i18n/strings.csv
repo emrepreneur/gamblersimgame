@@ -1,0 +1,35 @@
+keys,en,tr
+STATS,"Day %d/%d   Money: %d₺   Debt: %d₺
+Hope: %d   Family: %d   Moves left: %d","Gün %d/%d   Para: %d₺   Borç: %d₺
+Umut: %d   Aile: %d   Kalan hamle: %d"
+INTRO,"Meet Rıza. He has 50₺, a wife who still believes in him, and a strong feeling that today is the day.","Bu Rıza. 50 lirası, hâlâ ona inanan bir karısı ve bugünün o gün olduğuna dair güçlü bir hissi var."
+BTN_BET_SMALL,Bet 10₺,10₺ bas
+BTN_BET_ALL,All in (%d₺),Hepsini bas (%d₺)
+BTN_WORK,Work a shift,Mesaiye git
+BTN_SELL,Sell something from home,Evden bir şey sat
+BTN_BORROW,Borrow 100₺ from Tefeci Cemil,Tefeci Cemil'den 100₺ al
+BTN_END_DAY,Go home,Eve dön
+BTN_RESTART,Start over,Baştan başla
+BTN_LANGUAGE,Türkçe,English
+BET_WIN,"You won %d₺! Rıza is now officially a professional.","%d₺ kazandın! Rıza artık resmen profesyonel."
+BET_JACKPOT,"JACKPOT! %d₺! He kisses the screen. The cashier asks him to stop.","JACKPOT! %d₺! Ekranı öpüyor. Kasiyer bırakmasını rica ediyor."
+BET_LOSE_1,"Lost %d₺. The horse stopped to eat grass. Mid race.","%d₺ gitti. At yarışın ortasında durup ot yedi."
+BET_LOSE_2,"Lost %d₺. 'That team never loses at home.' They lost at home.","%d₺ gitti. ""O takım evinde kaybetmez."" Evinde kaybetti."
+BET_LOSE_3,"Lost %d₺. He blames the pen he filled the coupon with.","%d₺ gitti. Suçu kuponu doldurduğu kaleme atıyor."
+WORK,"Carried boxes all day for %d₺. His back hates him. His wife smiles a little.","Bütün gün koli taşıdı, %d₺ aldı. Beli ondan nefret ediyor. Karısı biraz gülümsedi."
+SELL_ITEM_IRON,"Sold the iron for %d₺. Wrinkled shirts never hurt anyone.","Ütüyü %d₺'ye sattı. Buruşuk gömlek kimseyi öldürmedi."
+SELL_ITEM_MICROWAVE,"Sold the microwave for %d₺. Cold food is a lifestyle now.","Mikrodalgayı %d₺'ye sattı. Soğuk yemek artık bir yaşam tarzı."
+SELL_ITEM_GUITAR,"Sold his son's guitar for %d₺. 'He was out of tune anyway.'","Oğlunun gitarını %d₺'ye sattı. ""Zaten akortsuzdu."""
+SELL_ITEM_TV,"Sold the TV for %d₺. The family now stares at the wall together.","Televizyonu %d₺'ye sattı. Aile artık birlikte duvara bakıyor."
+SELL_ITEM_RING,"Sold the wedding ring for %d₺. He tells himself it's a loan.","Alyansı %d₺'ye sattı. Kendine bunun bir borç olduğunu söylüyor."
+BORROW,"Cemil hands over %d₺ and says 'see you soon' a little too warmly.","Cemil %d₺'yi uzatıyor ve ""görüşürüz"" diyor, biraz fazla sıcak."
+EVENT_QUIET,"A quiet evening. Nobody asks where the money went. Yet.","Sakin bir akşam. Paranın nereye gittiğini kimse sormuyor. Henüz."
+EVENT_LUCKY_DREAM,"He dreamed of the number 7. Tomorrow is definitely the day.","Rüyasında 7 sayısını gördü. Yarın kesin o gün."
+EVENT_MOM_MONEY,"His mother slipped him 40₺ 'for bread'. It will not become bread.","Annesi ""ekmek parası"" diye 40₺ sıkıştırdı. Ekmek olmayacak."
+EVENT_KID_DRAWING,"His daughter drew him as a superhero. He hides the coupon in his pocket.","Kızı onu süper kahraman olarak çizmiş. Kuponu cebine saklıyor."
+EVENT_WIFE_IRON,"His wife is looking for the iron. He suggests it was stolen. By the neighbours.","Karısı ütüyü arıyor. Rıza çalındığını ima ediyor. Komşular tarafından."
+EVENT_COLLECTOR,"Cemil's cousin came by 'just to say hi'. Took 50₺ as a greeting.","Cemil'in kuzeni ""selam vermeye"" uğradı. Selam olarak 50₺ aldı."
+END_ALONE,"The house is quiet. Too quiet. The family is gone. Game over.","Ev sessiz. Fazla sessiz. Aile gitti. Oyun bitti."
+END_HOPELESS,"Rıza stops believing in tomorrow. Game over.","Rıza yarına inanmayı bıraktı. Oyun bitti."
+END_DEBT,"Cemil wants his money. All of it. Today. Game over.","Cemil parasını istiyor. Hepsini. Bugün. Oyun bitti."
+END_SURVIVED,"30 days. Still standing. Somehow. You win, sort of.","30 gün. Hâlâ ayakta. Bir şekilde. Kazandın, sayılır."
