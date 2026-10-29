@@ -20,16 +20,55 @@ func _init() -> void:
 	g.work()
 	check(g.work().is_empty(), "work once per day")
 	check(g.sell_next().key == "SELL_ITEM_IRON", "iron sells first")
-	g.borrow()
+	check(g.borrow(100).args == [100, 120, 5] and g.due_day == 6, "loan: +20%, due in 5 days")
+	check(g.borrow(100).is_empty(), "one loan at a time")
 	var money_before := g.money
 	g.sleep()
-	check(g.debt == 110 and g.day == 2 and not g.worked_today and g.matches.size() == 3, "new day: interest, reset")
+	check(g.debt == 120 and g.day == 2 and not g.worked_today and g.matches.size() == 3, "new day resets, no daily interest")
 	check(g.money <= money_before - g.FOOD_COST + 25, "food is paid")
+	check(g.loan_limit() == 0, "no new loan while owing")
+
+	# Joey's visit.
+	var v := GameState.new(5)
+	v.borrow(100)
+	check(not v.collection_due(), "Joey not due yet")
+	v.day = v.due_day
+	check(v.collection_due(), "Joey due on due day")
+	v.money = 60
+	var jr = v.pay_joey()
+	check(jr.key == "JOEY_PAID_PART" and v.debt == 60 and v.due_day == v.day + 2, "half pays buys 2 days")
+	v.day = v.due_day; v.money = 10
+	jr = v.pay_joey()
+	check(jr is Array and jr[1].key == "STEP_1" and v.step == 1 and v.rep < 50, "too little = ladder step 1")
+
+	# Negotiation.
+	var n := GameState.new(6)
+	n.borrow(100); n.day = n.due_day
+	check(n.negotiate("mom").key == "NEGO_MOM_OK" and n.negotiate("flatter").is_empty(), "one negotiation per deadline")
+	var due_before := n.day
+	check(n.accept_offer().key == "NEGO_DEAL" and n.debt == 132 and n.due_day == due_before + 3, "deal: 3 days, +10%")
+	n.day = n.due_day; n.negotiated = false
+	check(n.negotiate("mom").key == "NEGO_MOM_AGAIN", "mom excuse only works once")
+
+	# Patience ladder all the way to the desert.
+	var l := GameState.new(7)
+	l.borrow(300); l.money = 0
+	for i in 5:
+		l.day = l.due_day
+		l.sleep()
+	check(l.step == 0 and l.debt == 0 and l.items_sold == l.ITEMS.size() and l.money <= 25, "desert trip wipes everything")
+	check(not l.is_over(), "desert trip is not game over")
+	var sh := GameState.new(8)
+	sh.borrow(100); sh.step = 3; sh._miss()
+	check(sh.shadowed and sh.spin_roulette("red", 1).is_empty(), "shadowed: no casino")
+	sh.money = 1000; sh.repay()
+	check(not sh.shadowed and sh.step == 0, "paying off clears the ladder")
 
 	# Rent: day 7 sleep pays rent or evicts.
 	var r := GameState.new(2)
 	r.day = 7; r.money = 50
-	check(r.sleep()[0].key == "END_EVICTED", "evicted without rent")
+	check(r.sleep()[0].key == "END_EVICTED" and r.is_over(), "evicted without rent")
+	r.evicted = false
 	r.day = 7; r.money = 500
 	check(r.sleep()[0].key == "RENT_PAID" and r.day == 8, "rent paid")
 
@@ -63,8 +102,14 @@ func _init() -> void:
 	# Every key the code can emit must exist in the CSV.
 	var csv := FileAccess.get_file_as_string("res://i18n/strings.csv")
 	var keys := ["INTRO", "STATS", "WORK", "BORROW", "REPAY", "RENT_PAID", "EVENT_QUIET", "EVENT_LUCKY_DREAM",
-		"EVENT_FOUND_CHIP", "EVENT_VINNIE", "END_EVICTED", "END_DEBT", "SPORT_WIN", "SPORT_LOSE_1",
+		"EVENT_FOUND_CHIP", "END_EVICTED", "SPORT_WIN", "SPORT_LOSE_1",
 		"SPORT_LOSE_2", "SPORT_NO_MATCHES", "SPIN_WIN", "SPIN_LOSE"]
+	# Every key literal in the rules file.
+	var src := FileAccess.get_file_as_string("res://scripts/game_state.gd")
+	var re := RegEx.create_from_string('"key": "([A-Z_0-9]+)"')
+	for m in re.search_all(src):
+		if not m.get_string(1).ends_with("_"): keys.append(m.get_string(1))
+	keys.append_array(["STEP_3_1", "STEP_3_2", "STEP_3_3", "NEGO_OFFER", "JOEY_HERE", "STATS_DUE", "PLACE_JOEY"])
 	for item in GameState.ITEMS:
 		keys.append_array([item[0], "SELL_" + item[0]])
 	for t in GameState.TEAMS:

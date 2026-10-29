@@ -30,15 +30,13 @@ func record(result) -> void:
 	for r in (result if result is Array else [result]):
 		if not r.is_empty():
 			log.append(r)
-	if state.is_over() and log[-1].key != "END_DEBT":
-		log.append({"key": "END_DEBT", "args": []})
 	log = log.slice(-LOG_LINES)
 	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	f.store_string(JSON.stringify({"state": state.to_dict(), "log": log}))
 
 
 func is_over() -> bool:
-	return log[-1].key.begins_with("END_")
+	return state.is_over()
 
 
 func new_game() -> void:
@@ -55,11 +53,16 @@ func log_text() -> String:
 
 
 func entry_text(e: Dictionary) -> String:
-	return tr(e.key) % e.args if e.args else tr(e.key)
+	# String args are translation keys (item names); numbers pass through.
+	var args: Array = e.args.map(func(a): return tr(a) if a is String else a)
+	return tr(e.key) % args if args else tr(e.key)
 
 
 func stats_text() -> String:
-	return tr("STATS") % [state.day, state.money, state.debt, state.days_to_rent()]
+	var text: String = tr("STATS") % [state.day, state.money, state.debt, state.days_to_rent()]
+	if state.debt > 0:
+		text += "   " + tr("STATS_DUE") % maxi(state.due_day - state.day, 0)
+	return text
 
 
 func go(scene: String) -> void:

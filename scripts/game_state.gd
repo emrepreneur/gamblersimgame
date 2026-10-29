@@ -4,12 +4,15 @@ extends RefCounted
 const FOOD_COST := 20
 const RENT := 200
 const RENT_EVERY := 7
-const DAILY_INTEREST_PCT := 10
-const DEBT_LIMIT := 2000
-const LOAN_SIZE := 100
 const WORK_PAY := 60
 const TEAMS := 8
 const RED := [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]
+
+# Vinnie
+const LOAN_DAYS := 5
+const LOAN_FEE_PCT := 20
+const GRACE_DAYS := 3 # new deadline after a missed one
+const LAST_STEP := 5 # desert trip
 
 # Sold in this order: [key, price]
 const ITEMS := [
@@ -23,7 +26,16 @@ var money := 100
 var debt := 0
 var items_sold := 0
 var worked_today := false
+var evicted := false
 var matches: Array = [] # [[home_team, away_team, home_win_chance], ...]
+
+var due_day := 0 # day Joey comes; 0 = no loan
+var step := 0 # patience ladder, 0..LAST_STEP
+var rep := 50 # Vinnie's opinion of Larry, 0..100
+var used_mom := false # the hospital excuse only works once
+var negotiated := false # one negotiation per deadline
+var offer: Array = [] # Vinnie's current [days, pct], empty when none
+var shadowed := false # Joey follows Larry; no casino, no betting shop
 
 
 func _init(seed_value: int = -1) -> void:
@@ -34,7 +46,11 @@ func _init(seed_value: int = -1) -> void:
 	_new_matches()
 
 
-# --- Home -----------------------------------------------------------------
+func is_over() -> bool:
+	return evicted
+
+
+# --- Town -----------------------------------------------------------------
 
 func work() -> Dictionary:
 	if worked_today or is_over():
@@ -42,6 +58,10 @@ func work() -> Dictionary:
 	worked_today = true
 	money += WORK_PAY
 	return {"key": "WORK", "args": [WORK_PAY]}
+
+
+func next_item_value() -> int:
+	return ITEMS[items_sold][1] if items_sold < ITEMS.size() else 0
 
 
 func sell_next() -> Dictionary:
@@ -53,23 +73,6 @@ func sell_next() -> Dictionary:
 	return {"key": "SELL_" + item[0], "args": [item[1]]}
 
 
-func borrow() -> Dictionary:
-	if is_over():
-		return {}
-	money += LOAN_SIZE
-	debt += LOAN_SIZE
-	return {"key": "BORROW", "args": [LOAN_SIZE]}
-
-
-func repay() -> Dictionary:
-	var amount := mini(money, debt)
-	if amount <= 0 or is_over():
-		return {}
-	money -= amount
-	debt -= amount
-	return {"key": "REPAY", "args": [amount]}
-
-
 func days_to_rent() -> int:
 	return RENT_EVERY - (day - 1) % RENT_EVERY
 
@@ -78,29 +81,201 @@ func sleep() -> Array:
 	if is_over():
 		return []
 	var log := []
+	if collection_due():
+		log.append(_miss()) # going to bed instead of facing Joey counts as missing him
 	money = maxi(money - FOOD_COST, 0)
-	debt += (debt * DAILY_INTEREST_PCT + 99) / 100 # integer ceil
 	if days_to_rent() == 1:
 		if money < RENT:
-			return [{"key": "END_EVICTED", "args": []}]
+			evicted = true
+			return log + [{"key": "END_EVICTED", "args": []}]
 		money -= RENT
 		log.append({"key": "RENT_PAID", "args": [RENT]})
 	day += 1
 	worked_today = false
+	negotiated = false
+	offer = []
 	_new_matches()
-	var events := ["EVENT_QUIET", "EVENT_LUCKY_DREAM", "EVENT_FOUND_CHIP"]
-	if debt > 0:
-		events.append("EVENT_VINNIE")
-	var event: String = events[rng.randi() % events.size()]
-	match event:
-		"EVENT_FOUND_CHIP": money += 25
-		"EVENT_VINNIE": money -= mini(money, 50)
+	if due_day == day + 1:
+		log.append({"key": "VINNIE_TEXT", "args": []})
+	var event: String = ["EVENT_QUIET", "EVENT_LUCKY_DREAM", "EVENT_FOUND_CHIP"][rng.randi() % 3]
+	if event == "EVENT_FOUND_CHIP":
+		money += 25
 	log.append({"key": event, "args": []})
 	return log
 
 
-func is_over() -> bool:
-	return debt >= DEBT_LIMIT
+# --- Vinnie: loans --------------------------------------------------------
+
+## Biggest loan Vinnie will give right now. Grows with reputation.
+func loan_limit() -> int:
+	return 0 if debt > 0 or step >= 3 else 100 + rep * 4
+
+
+func borrow(amount: int) -> Dictionary:
+	if amount <= 0 or amount > loan_limit() or is_over():
+		return {}
+	money += amount
+	debt = amount + amount * LOAN_FEE_PCT / 100
+	due_day = day + LOAN_DAYS
+	return {"key": "BORROW", "args": [amount, debt, LOAN_DAYS]}
+
+
+func repay() -> Dictionary:
+	var amount := mini(money, debt)
+	if amount <= 0 or is_over():
+		return {}
+	money -= amount
+	debt -= amount
+	if debt == 0:
+		_cleared(10)
+		return {"key": "REPAY_ALL", "args": [amount]}
+	return {"key": "REPAY", "args": [amount, debt]}
+
+
+func _cleared(rep_gain: int) -> void:
+	rep = clampi(rep + rep_gain, 0, 100)
+	due_day = 0
+	step = 0
+	shadowed = false
+	offer = []
+
+
+# --- Vinnie: Joey's visit -------------------------------------------------
+
+func collection_due() -> bool:
+	return debt > 0 and day >= due_day and not is_over()
+
+
+## Pay what you can. Half or more buys 2 days, less is a miss.
+func pay_joey(): # -> Dictionary, or [result, ladder step] on a miss
+	if not collection_due() or money <= 0:
+		return {}
+	var paid := mini(money, debt)
+	var half := (debt + 1) / 2
+	money -= paid
+	debt -= paid
+	if debt == 0:
+		_cleared(10)
+		return {"key": "JOEY_PAID_ALL", "args": [paid]}
+	if paid >= half:
+		due_day = day + 2
+		return {"key": "JOEY_PAID_PART", "args": [paid, debt]}
+	return [{"key": "JOEY_PAID_LITTLE", "args": [paid]}, _miss()]
+
+
+## Vinnie takes the next item at half its value.
+func give_collateral() -> Dictionary:
+	if not collection_due() or items_sold >= ITEMS.size():
+		return {}
+	var item: Array = ITEMS[items_sold]
+	items_sold += 1
+	var value: int = mini(item[1] / 2, debt)
+	debt -= value
+	if debt == 0:
+		_cleared(5)
+		return {"key": "JOEY_COLLATERAL_ALL", "args": [item[0], value]}
+	due_day = day + 2
+	return {"key": "JOEY_COLLATERAL", "args": [item[0], value, debt]}
+
+
+func run_from_joey(): # -> Dictionary, or [result, ladder step]
+	if not collection_due():
+		return {}
+	rep = maxi(rep - 10, 0)
+	if rng.randf() < 0.5:
+		due_day = day + 1
+		return {"key": "JOEY_ESCAPED", "args": []}
+	return [{"key": "JOEY_CAUGHT", "args": []}, _miss()]
+
+
+## line: "tip", "mom" or "flatter". Sets Vinnie's offer [days, pct].
+func negotiate(line: String) -> Dictionary:
+	if not collection_due() or negotiated:
+		return {}
+	negotiated = true
+	var key := ""
+	match line:
+		"tip":
+			if rng.randf() < rep / 100.0:
+				offer = [3, 10]; key = "NEGO_TIP_OK"
+			else:
+				offer = [1, 25]; key = "NEGO_TIP_BAD"
+		"mom":
+			if used_mom:
+				rep = maxi(rep - 15, 0)
+				offer = [1, 30]; key = "NEGO_MOM_AGAIN"
+			else:
+				used_mom = true
+				offer = [3, 10]; key = "NEGO_MOM_OK"
+		"flatter":
+			offer = [2, 15]; key = "NEGO_FLATTER"
+		_:
+			negotiated = false
+			return {}
+	return {"key": key, "args": offer.duplicate()}
+
+
+## Push for a better deal: Vinnie improves it or walks away.
+func push_offer(): # -> Dictionary, or [result, ladder step]
+	if offer.is_empty():
+		return {}
+	if rng.randf() < 0.5:
+		offer = [offer[0] + 1, maxi(offer[1] - 5, 0)]
+		return {"key": "NEGO_PUSH_OK", "args": offer.duplicate()}
+	return [{"key": "NEGO_WALKED", "args": []}, _miss()]
+
+
+func accept_offer() -> Dictionary:
+	if offer.is_empty():
+		return {}
+	debt += (debt * offer[1] + 99) / 100 # integer ceil
+	due_day = day + offer[0]
+	var r := {"key": "NEGO_DEAL", "args": [offer[0], debt]}
+	offer = []
+	return r
+
+
+## One step up the patience ladder. Returns the consequence.
+func _miss() -> Dictionary:
+	step = mini(step + 1, LAST_STEP)
+	rep = maxi(rep - 10, 0)
+	due_day = day + GRACE_DAYS
+	offer = []
+	match step:
+		1: # Joey empties Larry's pockets
+			var took := mini(money, debt)
+			money -= took
+			debt -= took
+			if debt == 0:
+				_cleared(0)
+			return {"key": "STEP_1", "args": [took]}
+		2: # an item vanishes from the motel
+			if items_sold < ITEMS.size():
+				var item: Array = ITEMS[items_sold]
+				items_sold += 1
+				var value: int = mini(item[1] / 2, debt)
+				debt -= value
+				if debt == 0:
+					_cleared(0)
+				return {"key": "STEP_2", "args": [item[0], value]}
+			return {"key": "STEP_2_NOTHING", "args": []}
+		3: # a favour for Vinnie takes the day and knocks some debt off
+			var off := mini(debt, 100)
+			debt -= off
+			worked_today = true
+			if debt == 0:
+				_cleared(0)
+			return {"key": "STEP_3_%d" % rng.randi_range(1, 3), "args": [off]}
+		4:
+			shadowed = true
+			return {"key": "STEP_4", "args": []}
+	# Desert trip: everything gone, debt wiped, start from the bottom.
+	money = 0
+	items_sold = ITEMS.size()
+	debt = 0
+	_cleared(0)
+	rep = 20
+	return {"key": "STEP_5", "args": []}
 
 
 # --- Sports betting (quick bet) ------------------------------------------
@@ -120,7 +295,7 @@ static func odds(chance: float) -> float:
 
 
 func bet_match(index: int, home: bool, amount: int) -> Dictionary:
-	if index < 0 or index >= matches.size() or amount <= 0 or amount > money or is_over():
+	if index < 0 or index >= matches.size() or amount <= 0 or amount > money or is_over() or shadowed:
 		return {}
 	var m: Array = matches.pop_at(index) # one bet per match
 	var chance: float = m[2] if home else 1.0 - m[2]
@@ -135,7 +310,7 @@ func bet_match(index: int, home: bool, amount: int) -> Dictionary:
 # --- Roulette (mini game, European single zero) --------------------------
 
 func spin_roulette(bet: String, amount: int) -> Dictionary:
-	if amount <= 0 or amount > money or is_over():
+	if amount <= 0 or amount > money or is_over() or shadowed:
 		return {}
 	money -= amount
 	var n := rng.randi_range(0, 36)
@@ -156,7 +331,8 @@ static func roulette_payout(bet: String, n: int) -> int:
 
 # --- Save ----------------------------------------------------------------
 
-const SAVED := ["day", "money", "debt", "items_sold", "worked_today", "matches"]
+const SAVED := ["day", "money", "debt", "items_sold", "worked_today", "evicted", "matches",
+	"due_day", "step", "rep", "used_mom", "negotiated", "offer", "shadowed"]
 
 
 func to_dict() -> Dictionary:
@@ -171,7 +347,8 @@ func from_dict(d: Dictionary) -> void:
 		if d.has(k):
 			set(k, d[k])
 	# JSON turns ints into floats
-	for k in ["day", "money", "debt", "items_sold"]:
+	for k in ["day", "money", "debt", "items_sold", "due_day", "step", "rep"]:
 		set(k, int(get(k)))
+	offer = offer.map(func(v): return int(v))
 	for m in matches:
 		m[0] = int(m[0]); m[1] = int(m[1])

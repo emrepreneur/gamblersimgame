@@ -50,6 +50,8 @@ func _ready() -> void:
 	_build_ui()
 	if Game.is_over():
 		_open_place("MOTEL")
+	elif Game.state.collection_due():
+		_open_place("JOEY")
 
 
 func _draw_ground(ground: Node2D) -> void:
@@ -162,17 +164,72 @@ func _open_place(id: String) -> void:
 				var next_item: String = tr(s.ITEMS[s.items_sold][0]) if has_items else ""
 				Game.make_button(box, tr("BTN_SELL") % next_item, _act.bind(id, s.sell_next)).disabled = not has_items
 			"VINNIE":
-				Game.make_button(box, tr("BTN_BORROW") % s.LOAN_SIZE, _act.bind(id, s.borrow))
+				var limit: int = s.loan_limit()
+				if limit > 0:
+					for amount in ([100, limit] if limit > 100 else [100]):
+						Game.make_button(box, tr("BTN_BORROW") % amount, _act.bind(id, s.borrow.bind(amount)))
+				else:
+					Game.make_label(box, tr("VINNIE_NO_LOAN"))
 				Game.make_button(box, tr("BTN_REPAY"), _act.bind(id, s.repay)).disabled = s.debt == 0 or s.money == 0
-			"BETS":
-				Game.make_button(box, tr("BTN_SPORTS"), Game.go.bind("sports"))
-			"CASINO":
-				Game.make_button(box, tr("BTN_ROULETTE"), Game.go.bind("roulette"))
+			"BETS", "CASINO":
+				if s.shadowed:
+					Game.make_label(box, tr("SHADOW_BOUNCER"))
+				else:
+					Game.make_button(box, tr("BTN_SPORTS" if id == "BETS" else "BTN_ROULETTE"), Game.go.bind("sports" if id == "BETS" else "roulette"))
+			"JOEY":
+				_joey_buttons(box)
+				_show()
+				return
 		Game.make_button(box, tr("BTN_LEAVE"), func(): panel.visible = false)
 	panel.visible = true
+
+
+func _show() -> void:
+	panel.visible = true
+
+
+## Joey blocks the screen until Larry deals with him (or goes to sleep).
+func _joey_buttons(box: VBoxContainer) -> void:
+	var s = Game.state
+	if not s.offer.is_empty():
+		Game.make_label(box, tr("NEGO_OFFER") % s.offer)
+		Game.make_button(box, tr("BTN_ACCEPT"), _act.bind("JOEY", s.accept_offer))
+		Game.make_button(box, tr("BTN_PUSH"), _act.bind("JOEY", s.push_offer))
+		return
+	Game.make_label(box, tr("JOEY_HERE") % s.debt)
+	Game.make_button(box, tr("BTN_PAY_JOEY") % mini(s.money, s.debt), _act.bind("JOEY", s.pay_joey)).disabled = s.money <= 0
+	if not s.negotiated:
+		for line in ["tip", "mom", "flatter"]:
+			Game.make_button(box, tr("NEGO_LINE_" + line.to_upper()), _act.bind("JOEY", s.negotiate.bind(line)))
+	if s.items_sold < s.ITEMS.size():
+		Game.make_button(box, tr("BTN_COLLATERAL") % [tr(s.ITEMS[s.items_sold][0]), s.next_item_value() / 2], _act.bind("JOEY", s.give_collateral))
+	Game.make_button(box, tr("BTN_RUN"), _act.bind("JOEY", s.run_from_joey))
 
 
 func _act(id: String, action: Callable) -> void:
 	Game.record(action.call())
 	_refresh_hud()
-	_open_place(id)
+	if id == "JOEY" and not Game.state.collection_due() and Game.state.offer.is_empty():
+		id = "VINNIE_DONE"
+	if id == "VINNIE_DONE":
+		_result_only()
+	else:
+		_open_place(id)
+
+
+## After Joey leaves: show what happened and a close button.
+func _result_only() -> void:
+	for c in panel.get_children():
+		c.queue_free()
+	var margin := MarginContainer.new()
+	for side in ["left", "right", "top", "bottom"]:
+		margin.add_theme_constant_override("margin_" + side, 24)
+	panel.add_child(margin)
+	var box := VBoxContainer.new()
+	margin.add_child(box)
+	var lines := PackedStringArray()
+	for e in Game.log.slice(-2):
+		lines.append(Game.entry_text(e))
+	Game.make_label(box, "\n\n".join(lines))
+	Game.make_button(box, tr("BTN_LEAVE"), func(): panel.visible = false)
+	panel.visible = true

@@ -27,15 +27,13 @@ SELL_ITEM_GUITAR,"Sold the guitar for $%d. He only knew one song anyway.","Gitar
 SELL_ITEM_TV,"Sold the TV for $%d. Now he stares at the wall. Same shows.","Televizyonu $%d'a sattı. Artık duvara bakıyor. Programlar aynı."
 SELL_ITEM_WATCH,"Sold grandpa's watch for $%d. Grandpa would understand. Probably.","Dedesinin saatini $%d'a sattı. Dedesi anlardı. Herhalde."
 SELL_ITEM_CAR,"Sold the car for $%d. Walking is healthy.","Arabayı $%d'a sattı. Yürümek sağlıklı."
-BORROW,"Vinnie hands over $%d and pats his knee. Gently. For now.","Vinnie $%d'ı uzatıp dizine hafifçe vuruyor. Şimdilik hafifçe."
-REPAY,"Paid Vinnie $%d. Vinnie looks almost disappointed.","Vinnie'ye $%d ödedi. Vinnie neredeyse hayal kırıklığına uğramış."
+BORROW,"Vinnie hands over $%d. '$%d back in %d days, Larry.'","Vinnie $%d uzatıyor. ""$%d, %d gün içinde geri Larry."""
+REPAY,"Paid Vinnie $%d. Still owe $%d.","Vinnie'ye $%d ödedi. Hâlâ $%d borç var."
 RENT_PAID,"Rent day. $%d gone. The motel manager didn't even say thanks.","Kira günü. $%d gitti. Motel müdürü teşekkür bile etmedi."
 EVENT_QUIET,"A quiet night. The neon sign blinks like it's laughing at him.","Sakin bir gece. Neon tabela ona gülüyormuş gibi yanıp sönüyor."
 EVENT_LUCKY_DREAM,"He dreamed of number 17. Tomorrow is definitely the day.","Rüyasında 17'yi gördü. Yarın kesin o gün."
 EVENT_FOUND_CHIP,"Found a $25 chip under the bed. A sign!","Yatağın altında 25 dolarlık bir fiş buldu. Bu bir işaret!"
-EVENT_VINNIE,"Vinnie's nephew came by 'to say hi'. Took $50 as a greeting.","Vinnie'nin yeğeni ""selam vermeye"" geldi. Selam olarak 50 dolar aldı."
 END_EVICTED,"Rent day and no rent. Larry's stuff is on the sidewalk. Game over.","Kira günü ama kira yok. Larry'nin eşyaları kaldırımda. Oyun bitti."
-END_DEBT,"Vinnie wants his money. All of it. Tonight. Game over.","Vinnie parasını istiyor. Hepsini. Bu gece. Oyun bitti."
 SPORT_NO_MATCHES,"No more games today. Come back tomorrow.","Bugünlük maç kalmadı. Yarın gel."
 SPORT_WIN,"Called it! Won $%d. Larry is now an expert.","Bildi! $%d kazandı. Larry artık bir uzman."
 SPORT_LOSE_1,"Lost $%d. The star player tripped over the ball. Twice.","$%d gitti. Yıldız oyuncu topa takıldı. İki kere."
@@ -62,3 +60,42 @@ PLACE_BETS,Lucky Shot Bets,Lucky Shot Bahis
 PLACE_MOTEL,Desert Rose Motel,Desert Rose Motel
 PLACE_DINER,Eat Here Diner,Eat Here Lokantası
 PLACE_PAWN,Sal's Pawn,Sal'ın Rehincisi
+STATS_DUE,Vinnie in %d days,Vinnie'ye %d gün
+PLACE_JOEY,Joey is here,Joey geldi
+VINNIE_NO_LOAN,"Vinnie shakes his head. 'Pay what you owe first, Larry.'","Vinnie başını sallıyor. ""Önce borcunu öde Larry."""
+VINNIE_TEXT,"New message: 'See you tomorrow. Uncle Vinnie.'","Yeni mesaj: ""Yarın görüşüyoruz. Amcan Vinnie."""
+REPAY_ALL,"Paid Vinnie $%d. All square. Vinnie almost looks proud.","Vinnie'ye $%d ödedi. Hesap kapandı. Vinnie neredeyse gururlu."
+JOEY_HERE,"Joey leans on the wall. 'Uncle says you owe $%d. Today.'","Joey duvara yaslanmış. ""Amcam bugün $%d istiyor."""
+BTN_PAY_JOEY,Pay $%d,$%d öde
+BTN_COLLATERAL,Give %s (worth $%d to Vinnie),%s ver (Vinnie'ye göre $%d)
+BTN_RUN,Run!,Kaç!
+BTN_ACCEPT,Deal,Anlaştık
+BTN_PUSH,Push for more,Daha iyisini iste
+NEGO_LINE_TIP,"'I've got a sure tip. I'll double it by tomorrow.'","""Kesin bilgi var. Yarın ikiye katlarım."""
+NEGO_LINE_MOM,"'My mom's in hospital.'","""Annem hastanede."""
+NEGO_LINE_FLATTER,"'That jacket looks great on your uncle, by the way.'","""Bu arada amcana o ceket çok yakışmış."""
+NEGO_OFFER,"Vinnie's offer: %d more days, %d%% more.","Vinnie'nin teklifi: %d gün daha, %%%d fazlası."
+NEGO_TIP_OK,"Vinnie likes the confidence. Offer: %d days, %d%%.","Vinnie özgüvenini sevdi. Teklif: %d gün, %%%d."
+NEGO_TIP_BAD,"'Your tips are why you owe me, Larry.' Offer: %d day, %d%%.","""Bana borçlu olmanın sebebi o bilgiler Larry."" Teklif: %d gün, %%%d."
+NEGO_MOM_OK,"Vinnie looks touched. Offer: %d days, %d%%.","Vinnie duygulandı. Teklif: %d gün, %%%d."
+NEGO_MOM_AGAIN,"'Your mom was in hospital last month too, Larry.' Offer: %d day, %d%%.","""Annen geçen ay da hastanedeydi Larry."" Teklif: %d gün, %%%d."
+NEGO_FLATTER,"Vinnie adjusts his jacket. Offer: %d days, %d%%.","Vinnie ceketini düzeltiyor. Teklif: %d gün, %%%d."
+NEGO_PUSH_OK,"Vinnie sighs. 'Fine. %d days, %d%%. Last offer.'","Vinnie iç çekiyor. ""Peki. %d gün, %%%d. Son teklif."""
+NEGO_WALKED,"Vinnie hangs up. Joey cracks his knuckles.","Vinnie telefonu kapattı. Joey parmaklarını çıtlatıyor."
+NEGO_DEAL,"Deal. Joey comes back in %d days. You now owe $%d.","Anlaşma tamam. Joey %d gün sonra tekrar gelecek. Borcun artık $%d."
+JOEY_PAID_ALL,"Paid $%d. Joey counts it twice and leaves whistling.","$%d ödedi. Joey iki kez saydı ve ıslık çalarak gitti."
+JOEY_PAID_PART,"Paid $%d. 'Good start. $%d left. See you in 2 days.'","$%d ödedi. ""İyi başlangıç. $%d kaldı. 2 gün sonra görüşürüz."""
+JOEY_PAID_LITTLE,"Larry offers $%d. Joey laughs. Not in a nice way.","Larry $%d uzatıyor. Joey gülüyor. Hoş bir gülüş değil."
+JOEY_COLLATERAL,"Joey takes %s. Vinnie calls it $%d. Still owe $%d.","Joey %s alıyor. Vinnie $%d sayıyor. Hâlâ $%d borç var."
+JOEY_COLLATERAL_ALL,"Joey takes %s. Vinnie calls it $%d. Debt cleared.","Joey %s alıyor. Vinnie $%d sayıyor. Borç kapandı."
+JOEY_ESCAPED,"Larry sprints through the diner kitchen. Joey loses him. For one day.","Larry lokantanın mutfağından koşarak kaçıyor. Joey onu kaybediyor. Bir günlüğüne."
+JOEY_CAUGHT,"Larry trips over a shopping cart. Joey is not out of breath.","Larry bir market arabasına takılıyor. Joey hiç nefes nefese değil."
+STEP_1,"Joey 'says hi from uncle' and takes $%d from Larry's pocket.","Joey ""amcamdan selam var"" deyip Larry'nin cebinden $%d alıyor."
+STEP_2,"Back at the motel, %s is gone. A note: 'Thanks. V.' (worth $%d to Vinnie)","Motele dönünce %s yok. Bir not: ""Teşekkürler. V."" (Vinnie'ye göre $%d)"
+STEP_2_NOTHING,"Joey searches the room. There's nothing left to take. He looks almost sad.","Joey odayı arıyor. Alacak bir şey kalmamış. Neredeyse üzgün görünüyor."
+STEP_3_1,"A favour: Larry walks Vinnie's poodle. The poodle walks Larry. $%d off.","Bir iyilik: Larry, Vinnie'nin kanişini gezdiriyor. Daha çok kaniş Larry'yi gezdiriyor. $%d düştü."
+STEP_3_2,"A favour: drive a car to the desert. Don't open the trunk. He doesn't. $%d off.","Bir iyilik: bir arabayı çöle götür. Bagajı açma. Açmıyor. $%d düştü."
+STEP_3_3,"A favour: make sure cockroach #4 loses. Cockroach #4 is very sad. $%d off.","Bir iyilik: 4 numaralı hamamböceği kaybetsin. 4 numara çok üzgün. $%d düştü."
+STEP_4,"Joey now follows Larry everywhere. The bouncers have noticed.","Joey artık Larry'yi her yere takip ediyor. Fedailer de fark etti."
+STEP_5,"Larry wakes up in the desert. Underwear, a shovel, nothing else. The debt is gone. So is everything.","Larry çölde uyanıyor. İç çamaşırı ve bir kürek, başka bir şey yok. Borç silinmiş. Her şeyle birlikte."
+SHADOW_BOUNCER,"Tiny looks at Joey behind Larry. 'Not today, pal.'","Tiny, Larry'nin arkasındaki Joey'e bakıyor. ""Bugün olmaz dostum."""
