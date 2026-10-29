@@ -7,14 +7,15 @@ const LOG_LINES := 6
 
 var state: GameState
 var log: Array = []
+var larry_pos := Vector2.ZERO # map position, kept between screens (not saved)
 
 
 func _ready() -> void:
 	if OS.get_locale_language() == "tr":
 		TranslationServer.set_locale("tr")
-	var theme := Theme.new()
-	theme.default_font_size = 30
-	get_window().theme = theme
+	# Default theme, so it also reaches UI under CanvasLayers (window theme doesn't cross Node2D parents).
+	ThemeDB.get_default_theme().default_font_size = 30
+	RenderingServer.set_default_clear_color(Color("#1b1420"))
 	state = GameState.new()
 	var data = JSON.parse_string(FileAccess.get_file_as_string(SAVE_PATH)) if FileAccess.file_exists(SAVE_PATH) else null
 	if data is Dictionary:
@@ -49,8 +50,12 @@ func new_game() -> void:
 func log_text() -> String:
 	var lines := PackedStringArray()
 	for e in log:
-		lines.append(tr(e.key) % e.args if e.args else tr(e.key))
+		lines.append(entry_text(e))
 	return "\n\n".join(lines)
+
+
+func entry_text(e: Dictionary) -> String:
+	return tr(e.key) % e.args if e.args else tr(e.key)
 
 
 func stats_text() -> String:

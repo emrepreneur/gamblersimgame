@@ -11,7 +11,7 @@ BTN_BORROW,Borrow $%d from Vinnie,Vinnie'den $%d al
 BTN_REPAY,Pay back Vinnie,Vinnie'ye borcunu öde
 BTN_SLEEP,Go to sleep,Uyu
 BTN_RESTART,Start over,Baştan başla
-BTN_BACK,Back to the motel,Motele dön
+BTN_BACK,Back to the street,Sokağa dön
 BTN_LANGUAGE,Türkçe,English
 STAKE_ALL,All in,Hepsi
 ITEM_IRON,the iron,ütü
@@ -55,3 +55,10 @@ ROULETTE_ODD,Odd (x2),Tek (x2)
 ROULETTE_NUMBER,On this number (x36),Bu sayıya (x36)
 SPIN_WIN,"%d! Won $%d. The croupier looks suspicious.","%d! $%d kazandı. Krupiye şüpheli bakıyor."
 SPIN_LOSE,"%d. Lost $%d. 'The wheel is rigged,' Larry tells nobody.","%d. $%d gitti. ""Çark hileli,"" diyor Larry, kimseye."
+BTN_LEAVE,Leave,Çık
+PLACE_CASINO,GOLDEN JACKPOT CASINO,GOLDEN JACKPOT CASINO
+PLACE_VINNIE,Vinnie's Laundromat,Vinnie'nin Çamaşırhanesi
+PLACE_BETS,Lucky Shot Bets,Lucky Shot Bahis
+PLACE_MOTEL,Desert Rose Motel,Desert Rose Motel
+PLACE_DINER,Eat Here Diner,Eat Here Lokantası
+PLACE_PAWN,Sal's Pawn,Sal'ın Rehincisi

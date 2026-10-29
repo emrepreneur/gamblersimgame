@@ -32,7 +32,7 @@ func _ready() -> void:
 		b.disabled = Game.stake() <= 0 or Game.is_over()
 
 	Game.make_label(box, Game.log_text(), true)
-	Game.make_button(box, tr("BTN_BACK"), Game.go.bind("home"))
+	Game.make_button(box, tr("BTN_BACK"), Game.go.bind("world"))
 
 
 func _spin(bet: String) -> void:

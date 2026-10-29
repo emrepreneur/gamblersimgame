@@ -17,5 +17,6 @@ godot --headless --script res://tests/smoke_screens.gd
 ## Layout
 - `scripts/game_state.gd` all game rules, no UI (tested)
 - `scripts/game.gd` autoload `Game`: current state, log, save file, shared UI helpers
-- `scripts/home.gd`, `sports.gd`, `roulette.gd` one script per screen
+- `scripts/world.gd` isometric neighbourhood map (tap to walk, tap a building to enter); `building.gd`, `larry.gd` placeholder art drawn in code
+- `scripts/sports.gd`, `roulette.gd` gambling screens
 - `i18n/strings.csv` all text (key, en, tr)
