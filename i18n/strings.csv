@@ -1,35 +1,57 @@
 keys,en,tr
-STATS,"Day %d/%d   Money: %d₺   Debt: %d₺
-Hope: %d   Family: %d   Moves left: %d","Gün %d/%d   Para: %d₺   Borç: %d₺
-Umut: %d   Aile: %d   Kalan hamle: %d"
-INTRO,"Meet Rıza. He has 50₺, a wife who still believes in him, and a strong feeling that today is the day.","Bu Rıza. 50 lirası, hâlâ ona inanan bir karısı ve bugünün o gün olduğuna dair güçlü bir hissi var."
-BTN_BET_SMALL,Bet 10₺,10₺ bas
-BTN_BET_ALL,All in (%d₺),Hepsini bas (%d₺)
-BTN_WORK,Work a shift,Mesaiye git
-BTN_SELL,Sell something from home,Evden bir şey sat
-BTN_BORROW,Borrow 100₺ from Tefeci Cemil,Tefeci Cemil'den 100₺ al
-BTN_END_DAY,Go home,Eve dön
+STATS,"Day %d   Cash: $%d   Debt: $%d
+Rent due in %d days","Gün %d   Nakit: $%d   Borç: $%d
+Kiraya %d gün kaldı"
+INTRO,"Meet Lucky Larry. A motel room off the Strip, $100, and a gut feeling that never once was right.","Bu Lucky Larry. Strip'in arkasında bir motel odası, 100 doları ve bugüne kadar hiç tutmamış bir içgüdüsü var."
+BTN_SPORTS,Sports betting,Spor bahisleri
+BTN_ROULETTE,Roulette,Rulet
+BTN_WORK,Wash dishes ($%d),Bulaşık yıka ($%d)
+BTN_SELL,Sell: %s,Sat: %s
+BTN_BORROW,Borrow $%d from Vinnie,Vinnie'den $%d al
+BTN_REPAY,Pay back Vinnie,Vinnie'ye borcunu öde
+BTN_SLEEP,Go to sleep,Uyu
 BTN_RESTART,Start over,Baştan başla
+BTN_BACK,Back to the motel,Motele dön
 BTN_LANGUAGE,Türkçe,English
-BET_WIN,"You won %d₺! Rıza is now officially a professional.","%d₺ kazandın! Rıza artık resmen profesyonel."
-BET_JACKPOT,"JACKPOT! %d₺! He kisses the screen. The cashier asks him to stop.","JACKPOT! %d₺! Ekranı öpüyor. Kasiyer bırakmasını rica ediyor."
-BET_LOSE_1,"Lost %d₺. The horse stopped to eat grass. Mid race.","%d₺ gitti. At yarışın ortasında durup ot yedi."
-BET_LOSE_2,"Lost %d₺. 'That team never loses at home.' They lost at home.","%d₺ gitti. ""O takım evinde kaybetmez."" Evinde kaybetti."
-BET_LOSE_3,"Lost %d₺. He blames the pen he filled the coupon with.","%d₺ gitti. Suçu kuponu doldurduğu kaleme atıyor."
-WORK,"Carried boxes all day for %d₺. His back hates him. His wife smiles a little.","Bütün gün koli taşıdı, %d₺ aldı. Beli ondan nefret ediyor. Karısı biraz gülümsedi."
-SELL_ITEM_IRON,"Sold the iron for %d₺. Wrinkled shirts never hurt anyone.","Ütüyü %d₺'ye sattı. Buruşuk gömlek kimseyi öldürmedi."
-SELL_ITEM_MICROWAVE,"Sold the microwave for %d₺. Cold food is a lifestyle now.","Mikrodalgayı %d₺'ye sattı. Soğuk yemek artık bir yaşam tarzı."
-SELL_ITEM_GUITAR,"Sold his son's guitar for %d₺. 'He was out of tune anyway.'","Oğlunun gitarını %d₺'ye sattı. ""Zaten akortsuzdu."""
-SELL_ITEM_TV,"Sold the TV for %d₺. The family now stares at the wall together.","Televizyonu %d₺'ye sattı. Aile artık birlikte duvara bakıyor."
-SELL_ITEM_RING,"Sold the wedding ring for %d₺. He tells himself it's a loan.","Alyansı %d₺'ye sattı. Kendine bunun bir borç olduğunu söylüyor."
-BORROW,"Cemil hands over %d₺ and says 'see you soon' a little too warmly.","Cemil %d₺'yi uzatıyor ve ""görüşürüz"" diyor, biraz fazla sıcak."
-EVENT_QUIET,"A quiet evening. Nobody asks where the money went. Yet.","Sakin bir akşam. Paranın nereye gittiğini kimse sormuyor. Henüz."
-EVENT_LUCKY_DREAM,"He dreamed of the number 7. Tomorrow is definitely the day.","Rüyasında 7 sayısını gördü. Yarın kesin o gün."
-EVENT_MOM_MONEY,"His mother slipped him 40₺ 'for bread'. It will not become bread.","Annesi ""ekmek parası"" diye 40₺ sıkıştırdı. Ekmek olmayacak."
-EVENT_KID_DRAWING,"His daughter drew him as a superhero. He hides the coupon in his pocket.","Kızı onu süper kahraman olarak çizmiş. Kuponu cebine saklıyor."
-EVENT_WIFE_IRON,"His wife is looking for the iron. He suggests it was stolen. By the neighbours.","Karısı ütüyü arıyor. Rıza çalındığını ima ediyor. Komşular tarafından."
-EVENT_COLLECTOR,"Cemil's cousin came by 'just to say hi'. Took 50₺ as a greeting.","Cemil'in kuzeni ""selam vermeye"" uğradı. Selam olarak 50₺ aldı."
-END_ALONE,"The house is quiet. Too quiet. The family is gone. Game over.","Ev sessiz. Fazla sessiz. Aile gitti. Oyun bitti."
-END_HOPELESS,"Rıza stops believing in tomorrow. Game over.","Rıza yarına inanmayı bıraktı. Oyun bitti."
-END_DEBT,"Cemil wants his money. All of it. Today. Game over.","Cemil parasını istiyor. Hepsini. Bugün. Oyun bitti."
-END_SURVIVED,"30 days. Still standing. Somehow. You win, sort of.","30 gün. Hâlâ ayakta. Bir şekilde. Kazandın, sayılır."
+STAKE_ALL,All in,Hepsi
+ITEM_IRON,the iron,ütü
+ITEM_MICROWAVE,the microwave,mikrodalga
+ITEM_GUITAR,the guitar,gitar
+ITEM_TV,the TV,televizyon
+ITEM_WATCH,grandpa's watch,dedesinin saati
+ITEM_CAR,the car,araba
+WORK,"Washed dishes all night for $%d. Smells like ketchup now.","Bütün gece bulaşık yıkadı, $%d aldı. Artık ketçap kokuyor."
+SELL_ITEM_IRON,"Sold the iron for $%d. Wrinkles are a look.","Ütüyü $%d'a sattı. Kırışık da bir tarz."
+SELL_ITEM_MICROWAVE,"Sold the microwave for $%d. Cold pizza is still pizza.","Mikrodalgayı $%d'a sattı. Soğuk pizza da pizzadır."
+SELL_ITEM_GUITAR,"Sold the guitar for $%d. He only knew one song anyway.","Gitarı $%d'a sattı. Zaten tek şarkı biliyordu."
+SELL_ITEM_TV,"Sold the TV for $%d. Now he stares at the wall. Same shows.","Televizyonu $%d'a sattı. Artık duvara bakıyor. Programlar aynı."
+SELL_ITEM_WATCH,"Sold grandpa's watch for $%d. Grandpa would understand. Probably.","Dedesinin saatini $%d'a sattı. Dedesi anlardı. Herhalde."
+SELL_ITEM_CAR,"Sold the car for $%d. Walking is healthy.","Arabayı $%d'a sattı. Yürümek sağlıklı."
+BORROW,"Vinnie hands over $%d and pats his knee. Gently. For now.","Vinnie $%d'ı uzatıp dizine hafifçe vuruyor. Şimdilik hafifçe."
+REPAY,"Paid Vinnie $%d. Vinnie looks almost disappointed.","Vinnie'ye $%d ödedi. Vinnie neredeyse hayal kırıklığına uğramış."
+RENT_PAID,"Rent day. $%d gone. The motel manager didn't even say thanks.","Kira günü. $%d gitti. Motel müdürü teşekkür bile etmedi."
+EVENT_QUIET,"A quiet night. The neon sign blinks like it's laughing at him.","Sakin bir gece. Neon tabela ona gülüyormuş gibi yanıp sönüyor."
+EVENT_LUCKY_DREAM,"He dreamed of number 17. Tomorrow is definitely the day.","Rüyasında 17'yi gördü. Yarın kesin o gün."
+EVENT_FOUND_CHIP,"Found a $25 chip under the bed. A sign!","Yatağın altında 25 dolarlık bir fiş buldu. Bu bir işaret!"
+EVENT_VINNIE,"Vinnie's nephew came by 'to say hi'. Took $50 as a greeting.","Vinnie'nin yeğeni ""selam vermeye"" geldi. Selam olarak 50 dolar aldı."
+END_EVICTED,"Rent day and no rent. Larry's stuff is on the sidewalk. Game over.","Kira günü ama kira yok. Larry'nin eşyaları kaldırımda. Oyun bitti."
+END_DEBT,"Vinnie wants his money. All of it. Tonight. Game over.","Vinnie parasını istiyor. Hepsini. Bu gece. Oyun bitti."
+SPORT_NO_MATCHES,"No more games today. Come back tomorrow.","Bugünlük maç kalmadı. Yarın gel."
+SPORT_WIN,"Called it! Won $%d. Larry is now an expert.","Bildi! $%d kazandı. Larry artık bir uzman."
+SPORT_LOSE_1,"Lost $%d. The star player tripped over the ball. Twice.","$%d gitti. Yıldız oyuncu topa takıldı. İki kere."
+SPORT_LOSE_2,"Lost $%d. Larry blames the TV angle.","$%d gitti. Larry suçu kamera açısına atıyor."
+TEAM_0,Reno Raccoons,Reno Rakunları
+TEAM_1,Vegas Flamingos,Vegas Flamingoları
+TEAM_2,Mojave Mules,Mojave Katırları
+TEAM_3,Henderson Hustlers,Henderson Üçkağıtçıları
+TEAM_4,Boulder City Buffets,Boulder City Büfeleri
+TEAM_5,Laughlin Lizards,Laughlin Kertenkeleleri
+TEAM_6,Pahrump Pigeons,Pahrump Güvercinleri
+TEAM_7,Sin City Sinners,Sin City Günahkârları
+ROULETTE_RED,Red (x2),Kırmızı (x2)
+ROULETTE_BLACK,Black (x2),Siyah (x2)
+ROULETTE_EVEN,Even (x2),Çift (x2)
+ROULETTE_ODD,Odd (x2),Tek (x2)
+ROULETTE_NUMBER,On this number (x36),Bu sayıya (x36)
+SPIN_WIN,"%d! Won $%d. The croupier looks suspicious.","%d! $%d kazandı. Krupiye şüpheli bakıyor."
+SPIN_LOSE,"%d. Lost $%d. 'The wheel is rigged,' Larry tells nobody.","%d. $%d gitti. ""Çark hileli,"" diyor Larry, kimseye."

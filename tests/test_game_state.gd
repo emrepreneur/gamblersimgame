@@ -13,32 +13,62 @@ func check(cond: bool, msg: String) -> void:
 
 func _init() -> void:
 	var g := GameState.new(1)
-	check(g.bet(0).is_empty() and g.bet(999).is_empty(), "invalid bets rejected")
-	g.bet(10)
-	check(g.actions_left == 2, "bet uses a move")
-	g.sell_next()
-	check(g.sold == ["ITEM_IRON"], "iron sells first")
+	check(g.matches.size() == 3, "3 matches per day")
+	check(g.bet_match(0, true, 0).is_empty() and g.bet_match(0, true, 999).is_empty(), "invalid bets rejected")
+	g.bet_match(0, true, 10)
+	check(g.matches.size() == 2, "one bet per match")
+	g.work()
+	check(g.work().is_empty(), "work once per day")
+	check(g.sell_next().key == "SELL_ITEM_IRON", "iron sells first")
 	g.borrow()
-	check(not g.can_act() and g.work().is_empty(), "no moves left after 3 actions")
-	g.end_day()
-	check(g.debt == 110 and g.day == 2 and g.actions_left == 3, "interest + new day")
+	var money_before := g.money
+	g.sleep()
+	check(g.debt == 110 and g.day == 2 and not g.worked_today and g.matches.size() == 3, "new day: interest, reset")
+	check(g.money <= money_before - g.FOOD_COST + 25, "food is paid")
 
-	# House edge: many small bets should lose money on average.
-	var won := 0.0
+	# Rent: day 7 sleep pays rent or evicts.
+	var r := GameState.new(2)
+	r.day = 7; r.money = 50
+	check(r.sleep()[0].key == "END_EVICTED", "evicted without rent")
+	r.day = 7; r.money = 500
+	check(r.sleep()[0].key == "RENT_PAID" and r.day == 8, "rent paid")
+
+	# Roulette payouts.
+	check(GameState.roulette_payout("red", 1) == 2 and GameState.roulette_payout("red", 2) == 0, "red")
+	check(GameState.roulette_payout("black", 0) == 0 and GameState.roulette_payout("even", 0) == 0, "zero loses outside bets")
+	check(GameState.roulette_payout("17", 17) == 36 and GameState.roulette_payout("17", 18) == 0, "straight number")
+
+	# House edge on both games over many bets.
 	var h := GameState.new(42)
+	var spun := 0
+	var sport := 0
 	for i in 20000:
-		h.actions_left = 3; h.money = 10; h.hope = 50; h.family = 50
-		h.bet(10)
-		won += h.money - 10
-	check(won < 0, "house edge holds (net %d)" % won)
+		h.money = 10
+		spun += h.spin_roulette("red", 10).win - 10
+		h.money = 10
+		if h.matches.is_empty():
+			h._new_matches()
+		h.bet_match(0, i % 2 == 0, 10)
+		sport += h.money - 10
+	check(spun < 0, "roulette house edge (net %d)" % spun)
+	check(sport < 0, "sports house edge (net %d)" % sport)
 
-	# Every key the logic can emit must exist in the CSV.
+	# Save round trip.
+	var a := GameState.new(3)
+	a.money = 77; a.debt = 33; a.day = 5
+	var b := GameState.new(4)
+	b.from_dict(JSON.parse_string(JSON.stringify(a.to_dict())))
+	check(b.money == 77 and b.debt == 33 and b.day == 5 and str(b.matches) == str(a.matches), "save round trip")
+
+	# Every key the code can emit must exist in the CSV.
 	var csv := FileAccess.get_file_as_string("res://i18n/strings.csv")
-	var keys := ["BET_WIN", "BET_JACKPOT", "BET_LOSE_1", "BET_LOSE_2", "BET_LOSE_3", "WORK", "BORROW",
-		"EVENT_QUIET", "EVENT_LUCKY_DREAM", "EVENT_MOM_MONEY", "EVENT_KID_DRAWING", "EVENT_WIFE_IRON",
-		"EVENT_COLLECTOR", "END_ALONE", "END_HOPELESS", "END_DEBT", "END_SURVIVED"]
+	var keys := ["INTRO", "STATS", "WORK", "BORROW", "REPAY", "RENT_PAID", "EVENT_QUIET", "EVENT_LUCKY_DREAM",
+		"EVENT_FOUND_CHIP", "EVENT_VINNIE", "END_EVICTED", "END_DEBT", "SPORT_WIN", "SPORT_LOSE_1",
+		"SPORT_LOSE_2", "SPORT_NO_MATCHES", "SPIN_WIN", "SPIN_LOSE"]
 	for item in GameState.ITEMS:
-		keys.append("SELL_" + item)
+		keys.append_array([item[0], "SELL_" + item[0]])
+	for t in GameState.TEAMS:
+		keys.append("TEAM_%d" % t)
 	for k in keys:
 		check(csv.contains("\n" + k + ","), "missing translation " + k)
 
