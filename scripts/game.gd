@@ -7,15 +7,17 @@ const LOG_LINES := 6
 
 var state: GameState
 var log: Array = []
+var click := AudioStreamPlayer.new()
 var larry_pos := Vector2.ZERO # map position, kept between screens (not saved)
 
 
 func _ready() -> void:
 	if OS.get_locale_language() == "tr":
 		TranslationServer.set_locale("tr")
-	# Default theme, so it also reaches UI under CanvasLayers (window theme doesn't cross Node2D parents).
-	ThemeDB.get_default_theme().default_font_size = 30
-	RenderingServer.set_default_clear_color(Color("#1b1420"))
+	_setup_theme()
+	RenderingServer.set_default_clear_color(Color("#2a1f3d"))
+	add_child(click)
+	click.stream = load("res://assets/audio/click.ogg")
 	state = GameState.new()
 	var data = JSON.parse_string(FileAccess.get_file_as_string(SAVE_PATH)) if FileAccess.file_exists(SAVE_PATH) else null
 	if data is Dictionary:
@@ -71,11 +73,13 @@ func go(scene: String) -> void:
 
 ## Shared screen layout: margin + vertical box, returned for the screen to fill.
 func make_screen(owner: Control) -> VBoxContainer:
+	var bg := PanelContainer.new()
+	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT, Control.PRESET_MODE_MINSIZE, 16)
+	owner.add_child(bg)
 	var margin := MarginContainer.new()
-	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for side in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 32)
-	owner.add_child(margin)
+		margin.add_theme_constant_override("margin_" + side, 16)
+	bg.add_child(margin)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 14)
 	margin.add_child(box)
@@ -86,6 +90,7 @@ func make_button(box: Container, text: String, on_press: Callable) -> Button:
 	var b := Button.new()
 	b.text = text
 	b.custom_minimum_size.y = 80
+	b.pressed.connect(click.play)
 	b.pressed.connect(on_press)
 	box.add_child(b)
 	return b
@@ -120,3 +125,40 @@ func make_label(box: Container, text: String, expand := false) -> Label:
 		l.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
 	box.add_child(l)
 	return l
+
+
+## Kenney UI pack + Fredoka, set on the default theme so every Control picks it up.
+func _setup_theme() -> void:
+	var t := ThemeDB.get_default_theme()
+	var font: FontFile = load("res://assets/fonts/fredoka-latin-600-normal.woff2")
+	font.fallbacks = [load("res://assets/fonts/fredoka-latin-ext-600-normal.woff2")] # Turkish letters live in the latin-ext file
+	t.default_font = font
+	t.default_font_size = 30
+
+	for state in ["normal", "hover", "pressed", "disabled", "focus"]:
+		var file: String = {"normal": "btn_yellow", "hover": "btn_yellow", "pressed": "btn_yellow_pressed",
+			"disabled": "btn_grey", "focus": "btn_yellow"}[state]
+		if state == "focus":
+			t.set_stylebox(state, "Button", StyleBoxEmpty.new())
+			continue
+		var sb := StyleBoxTexture.new()
+		sb.texture = load("res://assets/ui/%s.png" % file)
+		sb.texture_margin_left = 16; sb.texture_margin_right = 16
+		sb.texture_margin_top = 16; sb.texture_margin_bottom = 20
+		sb.content_margin_left = 20; sb.content_margin_right = 20
+		sb.content_margin_top = 10; sb.content_margin_bottom = 16 if state != "pressed" else 10
+		t.set_stylebox(state, "Button", sb)
+	for c in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		t.set_color(c, "Button", Color("#4a2f00"))
+	t.set_color("font_disabled_color", "Button", Color("#8a8a8a"))
+
+	var panel := StyleBoxFlat.new()
+	panel.bg_color = Color("#fff8e7")
+	panel.border_color = Color("#3b2a52")
+	panel.set_border_width_all(5)
+	panel.set_corner_radius_all(22)
+	panel.shadow_color = Color(0, 0, 0, 0.35)
+	panel.shadow_size = 10
+	panel.set_content_margin_all(12)
+	t.set_stylebox("panel", "PanelContainer", panel)
+	t.set_color("font_color", "Label", Color("#3b2a52"))

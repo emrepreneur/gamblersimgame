@@ -17,6 +17,8 @@ godot --headless --script res://tests/smoke_screens.gd
 ## Layout
 - `scripts/game_state.gd` all game rules, no UI (tested)
 - `scripts/game.gd` autoload `Game`: current state, log, save file, shared UI helpers
-- `scripts/world.gd` isometric neighbourhood map (tap to walk, tap a building to enter); `building.gd`, `larry.gd` placeholder art drawn in code
+- `scripts/world.gd` isometric neighbourhood map from Kenney tiles (tap to walk with A*, tap a building to enter, Joey walks in when a loan is due)
+- `scripts/character.gd` 3D Kenney character rendered into the 2D map, with walk/idle animations
+- `assets/` Kenney art/UI/audio (CC0) and Fredoka font, see `assets/CREDITS.txt`
 - `scripts/sports.gd`, `roulette.gd` gambling screens
 - `i18n/strings.csv` all text (key, en, tr)

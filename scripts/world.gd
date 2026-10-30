@@ -1,106 +1,261 @@
 extends Node2D
-## The neighbourhood map. Tap the ground to walk, tap a building to walk to its door and go in.
+## The neighbourhood map, built from Kenney isometric tiles.
+## Tap the ground to walk (A* around buildings), tap a building to walk to its door and go in.
 
-const Building := preload("res://scripts/building.gd")
-const Larry := preload("res://scripts/larry.gd")
+const Character := preload("res://scripts/character.gd")
 
-const GRID := 11
-const STRIP_ROWS := 4 # rows 0..3 are the Strip, the rest are back streets
+const GRID := 12
+const HW := 66.0 # half tile width
+const HH := 33.0 # half tile height
+const FLOOR_UP := 49.5 # next floor sits this far below the previous sprite's top
+const ROAD_X := [3, 8] # columns that are roads
+const ROAD_Y := [3, 8] # rows that are roads
+const STRIP_ROWS := 3 # rows above the first road are the Strip
 
-# cell = top corner of footprint, size = footprint in cells, h = wall height in px
-const PLACES := [
-	{"id": "CASINO", "cell": Vector2i(3, 0), "size": Vector2i(4, 3), "h": 210, "color": "#e8b923"},
-	{"id": "VINNIE", "cell": Vector2i(0, 4), "size": Vector2i(2, 2), "h": 70, "color": "#4fa3c7"},
-	{"id": "BETS", "cell": Vector2i(8, 4), "size": Vector2i(2, 2), "h": 80, "color": "#3fae6b"},
-	{"id": "MOTEL", "cell": Vector2i(0, 8), "size": Vector2i(3, 2), "h": 100, "color": "#d08c4a"},
-	{"id": "DINER", "cell": Vector2i(4, 8), "size": Vector2i(2, 2), "h": 60, "color": "#d9534f"},
-	{"id": "PAWN", "cell": Vector2i(8, 8), "size": Vector2i(2, 2), "h": 70, "color": "#8e6cc3"},
+# Each place: tiles it covers, and the sprite stack per tile (ground floor, upper floors..., roof).
+const PLACES := {
+	"CASINO": {"tiles": [Vector2i(4, 1), Vector2i(5, 1), Vector2i(4, 2), Vector2i(5, 2)],
+		"stack": ["002", "000", "000", "000", "000"], "sign": "#ff4fd8"},
+	"MOTEL": {"tiles": [Vector2i(1, 4)], "stack": ["040", "048", "074"], "sign": "#ffb347"},
+	"DINER": {"tiles": [Vector2i(4, 4)], "stack": ["012"], "sign": "#ff6b6b"},
+	"BETS": {"tiles": [Vector2i(9, 4)], "stack": ["029"], "sign": "#7ee081"},
+	"VINNIE": {"tiles": [Vector2i(1, 9)], "stack": ["045", "016"], "sign": "#6ec6ff"},
+	"PAWN": {"tiles": [Vector2i(4, 9)], "stack": ["024", "048"], "sign": "#c39bff"},
+}
+# Filler buildings: [tile, stack]
+const FILLERS := [
+	[Vector2i(0, 1), ["001", "000", "000", "000"]], [Vector2i(1, 2), ["003", "000", "000"]],
+	[Vector2i(6, 2), ["009", "007", "007", "007"]], [Vector2i(7, 1), ["010", "000", "000", "000", "000"]],
+	[Vector2i(9, 2), ["004", "008", "008"]], [Vector2i(10, 1), ["002", "000", "000", "000"]],
+	[Vector2i(11, 2), ["011", "000", "000"]], [Vector2i(0, 0), ["017", "015"]],
+	[Vector2i(2, 5), ["036", "072"]], [Vector2i(5, 5), ["027"]], [Vector2i(6, 4), ["020", "024"]],
+	[Vector2i(10, 5), ["033", "080"]], [Vector2i(11, 4), ["041", "039"]], [Vector2i(7, 6), ["046"]],
+	[Vector2i(0, 6), ["022", "023"]], [Vector2i(2, 10), ["037", "081"]], [Vector2i(5, 10), ["026"]],
+	[Vector2i(6, 9), ["030", "031", "076"]], [Vector2i(9, 10), ["042", "043"]], [Vector2i(10, 9), ["019"]],
+	[Vector2i(11, 10), ["035", "032"]], [Vector2i(0, 11), ["018"]], [Vector2i(7, 11), ["021", "016"]],
 ]
+const TREES := [Vector2i(2, 6), Vector2i(6, 6), Vector2i(10, 6), Vector2i(1, 11), Vector2i(6, 11), Vector2i(10, 11), Vector2i(2, 0), Vector2i(9, 0)]
 
-var buildings := {}
-var larry: Larry
+var astar := AStarGrid2D.new()
+var place_at := {} # Vector2i -> place id
+var hit_sprites: Array = [] # [Sprite2D, place id], front-most last
+var larry: Character
+var joey: Character
 var going_into := ""
 var hud: Label
 var panel: PanelContainer
 
 
+static func top_corner(cell: Vector2i) -> Vector2:
+	return Vector2((cell.x - cell.y) * HW, (cell.x + cell.y) * HH)
+
+
+## Where a character stands on a tile (centre of its top face).
+static func centre(cell: Vector2i) -> Vector2:
+	return top_corner(cell) + Vector2(0, HH)
+
+
+static func cell_at(p: Vector2) -> Vector2i:
+	var u := p.x / HW
+	var v := p.y / HH
+	return Vector2i(floori((u + v) / 2.0), floori((v - u) / 2.0))
+
+
 func _ready() -> void:
+	astar.region = Rect2i(0, 0, GRID, GRID)
+	astar.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_NEVER
+	astar.update()
+
 	var ground := Node2D.new()
-	ground.z_index = -1
-	ground.draw.connect(_draw_ground.bind(ground))
 	add_child(ground)
+	var things := Node2D.new()
+	things.y_sort_enabled = true
+	add_child(things)
 
-	var sorted := Node2D.new()
-	sorted.y_sort_enabled = true
-	add_child(sorted)
-	for p in PLACES:
-		var b := Building.new()
-		b.setup(p)
-		sorted.add_child(b)
-		buildings[p.id] = b
+	var stacks := {}
+	for id in PLACES:
+		for t in PLACES[id].tiles:
+			stacks[t] = PLACES[id].stack
+			place_at[t] = id
+	for f in FILLERS:
+		stacks[f[0]] = f[1]
 
-	larry = Larry.new()
-	larry.position = Game.larry_pos if Game.larry_pos != Vector2.ZERO else buildings.MOTEL.door()
+	# Ground first, back to front, so tile thickness overlaps correctly.
+	for s in GRID * 2:
+		for x in GRID:
+			var y := s - x
+			if y < 0 or y >= GRID:
+				continue
+			var cell := Vector2i(x, y)
+			if stacks.has(cell):
+				astar.set_point_solid(cell)
+				_add_building(things, cell, stacks[cell])
+			else:
+				_add_sprite(ground, "res://assets/city/cityTiles_%s.png" % _ground_tile(cell), top_corner(cell), false)
+
+	for id in PLACES:
+		_add_sign(id)
+
+	larry = Character.new()
+	larry.setup("res://assets/characters/character-male-b.glb")
+	larry.position = Game.larry_pos if Game.larry_pos != Vector2.ZERO else centre(_door(PLACES.MOTEL.tiles[0]))
 	larry.arrived.connect(_on_arrived)
-	sorted.add_child(larry)
+	things.add_child(larry)
 	var cam := Camera2D.new()
-	larry.add_child(cam)
 	cam.position_smoothing_enabled = true
+	cam.zoom = Vector2.ONE * 0.8
+	larry.add_child(cam)
 
 	_build_ui()
 	if Game.is_over():
 		_open_place("MOTEL")
 	elif Game.state.collection_due():
-		_open_place("JOEY")
+		_joey_arrives(things)
 
 
-func _draw_ground(ground: Node2D) -> void:
-	for x in GRID:
-		for y in GRID:
-			var strip := y < STRIP_ROWS
-			var road := x == 2 or x == 7 or y == 3 or y == 7
-			var c := Color("#4a2b5c") if strip else Color("#3b3f45")
-			if road:
-				c = Color("#2a2033") if strip else Color("#25282c")
-			if (x + y) % 2 == 0:
-				c = c.lightened(0.05)
-			var p := Building.iso(x, y)
-			ground.draw_colored_polygon([p, Building.iso(x + 1, y), Building.iso(x + 1, y + 1), Building.iso(x, y + 1)], c)
-	# Neon line where the Strip begins.
-	ground.draw_line(Building.iso(0, STRIP_ROWS), Building.iso(GRID, STRIP_ROWS), Color("#ff4fd8"), 4)
+func _ground_tile(c: Vector2i) -> String:
+	var rx := c.x in ROAD_X
+	var ry := c.y in ROAD_Y
+	if rx and ry:
+		return "089"
+	if rx:
+		return "081"
+	if ry:
+		return "073"
+	if c in TREES:
+		return "078"
+	return "072"
+
+
+func _add_sprite(parent: Node, path: String, top_left_anchor: Vector2, bottom := true) -> Sprite2D:
+	var sp := Sprite2D.new()
+	sp.texture = load(path)
+	sp.centered = false
+	var size := sp.texture.get_size()
+	# bottom = anchor is the bottom-centre of the image, else its top-centre.
+	sp.position = top_left_anchor - Vector2(size.x / 2.0, size.y if bottom else 0.0)
+	parent.add_child(sp)
+	return sp
+
+
+## One building on one tile: ground floor aligned with the ground tiles, then floors stacked up.
+func _add_building(parent: Node, cell: Vector2i, stack: Array) -> void:
+	var node := Node2D.new()
+	node.position = centre(cell) # y-sort by tile centre, same as characters
+	parent.add_child(node)
+	var bottom := top_corner(cell) + Vector2(0, 101) - node.position
+	var top_y := 0.0
+	for i in stack.size():
+		var anchor := bottom if i == 0 else Vector2(0, top_y + FLOOR_UP)
+		var sp := _add_sprite(node, "res://assets/buildings/buildingTiles_%s.png" % stack[i], anchor)
+		top_y = sp.position.y
+		hit_sprites.append([sp, place_at.get(cell, "")])
+
+
+func _add_sign(id: String) -> void:
+	var tiles: Array = PLACES[id].tiles
+	var top := INF
+	var sum := Vector2.ZERO
+	for t in tiles:
+		sum += centre(t)
+	for pair in hit_sprites:
+		if pair[1] == id:
+			top = minf(top, pair[0].global_position.y)
+	var l := Label.new()
+	l.text = tr("PLACE_" + id)
+	var big: bool = id == "CASINO"
+	l.add_theme_font_size_override("font_size", 40 if big else 24)
+	l.add_theme_color_override("font_color", Color(PLACES[id].sign))
+	l.add_theme_color_override("font_outline_color", Color("#1b1420"))
+	l.add_theme_constant_override("outline_size", 12 if big else 9)
+	l.z_index = 10
+	add_child(l)
+	l.reset_size()
+	l.position = Vector2(sum.x / tiles.size() - l.size.x / 2.0, top - l.size.y - 4)
+
+
+## Nearest walkable tile next to a building tile, preferring the road side.
+func _door(cell: Vector2i) -> Vector2i:
+	for d in [Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0), Vector2i(0, -1)]:
+		var n: Vector2i = cell + d
+		if astar.is_in_boundsv(n) and not astar.is_point_solid(n):
+			return n
+	return cell
+
+
+func _path_to(cell: Vector2i) -> Array:
+	var from := cell_at(larry.position - Vector2(0, 1))
+	from = from.clamp(Vector2i.ZERO, Vector2i(GRID - 1, GRID - 1))
+	var pts := []
+	for c in astar.get_id_path(from, cell, true):
+		pts.append(centre(c))
+	return pts
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
 		return
-	if panel.visible or Game.is_over():
+	if panel.visible or Game.is_over() or joey != null:
 		return
 	var p := get_global_mouse_position()
-	# Front-most building first, so overlapping roofs pick the one in front.
-	var ids := buildings.keys()
-	ids.sort_custom(func(a, b): return buildings[a].position.y > buildings[b].position.y)
-	for id in ids:
-		if Geometry2D.is_point_in_polygon(p, buildings[id].hull()):
-			going_into = id
-			larry.walk_to(buildings[id].door())
-			return
+	# Buildings: front-most opaque pixel wins.
+	var best := ""
+	var best_y := -INF
+	for pair in hit_sprites:
+		var sp: Sprite2D = pair[0]
+		if pair[1] != "" and sp.is_pixel_opaque(sp.to_local(p)) and sp.get_parent().position.y > best_y:
+			best = pair[1]
+			best_y = sp.get_parent().position.y
+	if best != "":
+		going_into = best
+		var door := _door(PLACES[best].tiles[0])
+		larry.walk(_path_to(door))
+		return
+	var cell := cell_at(p)
+	if not astar.is_in_boundsv(cell) or astar.is_point_solid(cell):
+		return
 	going_into = ""
-	# shortcut: straight-line walking, no pathfinding around buildings; add a NavigationRegion2D when the map grows.
-	larry.walk_to(_clamp_to_map(p))
-
-
-func _clamp_to_map(p: Vector2) -> Vector2:
-	# Inverse iso, clamp to the grid, back to screen.
-	var gx := clampf(p.x / Building.TW + p.y / Building.TH, 0, GRID)
-	var gy := clampf(p.y / Building.TH - p.x / Building.TW, 0, GRID)
-	return Building.iso(gx, gy)
+	larry.walk(_path_to(cell))
 
 
 func _on_arrived() -> void:
 	Game.larry_pos = larry.position
 	if going_into != "":
+		larry.face(centre(PLACES[going_into].tiles[0]) - larry.position)
 		_open_place(going_into)
 		going_into = ""
+
+
+## Joey walks in from the nearest road end and blocks Larry until the debt is dealt with.
+func _joey_arrives(parent: Node) -> void:
+	joey = Character.new()
+	joey.setup("res://assets/characters/character-male-a.glb")
+	var larry_cell := cell_at(larry.position - Vector2(0, 1))
+	joey.position = centre(Vector2i(ROAD_X[0], GRID - 1))
+	parent.add_child(joey)
+	var target := larry_cell + Vector2i(1, 0)
+	if not astar.is_in_boundsv(target) or astar.is_point_solid(target):
+		target = larry_cell + Vector2i(0, 1)
+	var pts := []
+	for c in astar.get_id_path(cell_at(joey.position - Vector2(0, 1)), target, true):
+		pts.append(centre(c))
+	joey.arrived.connect(func():
+		joey.face(larry.position - joey.position)
+		larry.face(joey.position - larry.position)
+		_open_place("JOEY"), CONNECT_ONE_SHOT)
+	joey.walk(pts)
+
+
+func _joey_leaves() -> void:
+	if joey == null:
+		return
+	var j := joey
+	joey = null
+	var pts := []
+	for c in astar.get_id_path(cell_at(j.position - Vector2(0, 1)), Vector2i(ROAD_X[0], GRID - 1), true):
+		pts.append(centre(c))
+	j.arrived.connect(j.queue_free)
+	j.walk(pts)
 
 
 # --- UI ------------------------------------------------------------------
@@ -212,6 +367,7 @@ func _act(id: String, action: Callable) -> void:
 	if id == "JOEY" and not Game.state.collection_due() and Game.state.offer.is_empty():
 		id = "VINNIE_DONE"
 	if id == "VINNIE_DONE":
+		_joey_leaves()
 		_result_only()
 	else:
 		_open_place(id)

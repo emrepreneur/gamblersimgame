@@ -23,8 +23,11 @@ func _init() -> void:
 		game.state.day = game.state.due_day
 		game.state.money = 30 * round
 		reload_current_scene()
-		await process_frame
-		await process_frame
+		# Joey walks over first; wait until his panel is up.
+		for f in 1200:
+			await process_frame
+			if current_scene and current_scene.get("panel") and current_scene.panel.visible:
+				break
 		var pressed := []
 		for i in 6:
 			var bs := buttons().filter(func(b): return b.text != "English" and b.text != "Türkçe")
