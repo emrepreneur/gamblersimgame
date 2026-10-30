@@ -5,7 +5,7 @@ extends Node2D
 signal arrived
 
 const VIEW := Vector2i(200, 240)
-const SPEED := 150.0 # px/s on the map
+const SPEED := 240.0 # px/s on the map
 
 var path: Array = []
 var anim: AnimationPlayer
@@ -56,6 +56,7 @@ func walk(points: Array) -> void:
 	if path.is_empty():
 		arrived.emit()
 		return
+	anim.speed_scale = 1.5 # legs keep up with the faster pace
 	anim.play("walk")
 
 
@@ -81,6 +82,7 @@ func _process(delta: float) -> void:
 		position = target
 		path.pop_front()
 		if path.is_empty():
+			anim.speed_scale = 1.0
 			anim.play("idle")
 			arrived.emit()
 		return
