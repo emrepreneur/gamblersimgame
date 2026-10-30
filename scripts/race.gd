@@ -15,6 +15,7 @@ var stable: VBoxContainer
 var race_btn: Button
 var clear_btn: Button
 var chip := 10
+var pending := 0 # winnings already in the state but not revealed yet
 var bets := {} # field index -> amount
 var running := false
 var t := 0.0
@@ -108,7 +109,7 @@ func _staked() -> int:
 
 func _refresh() -> void:
 	var s = Game.state
-	hud.text = tr("ROULETTE_HUD") % [s.money, _staked()]
+	hud.text = tr("ROULETTE_HUD") % [s.money - pending, _staked()]
 	for c in card.get_children():
 		c.queue_free()
 	# While racing, list the roaches on the track (the state has already rolled the next field).
@@ -199,10 +200,12 @@ func _race() -> void:
 	for k in result.order.size():
 		finish_at[result.order[k]] = RACE_TIME * 0.8 + k * 0.32 + randf() * 0.1
 	winner = result.order[0] if not raid else -1
+	pending = result.win + result.purse
 	sfx["dice-shake-1"].play()
 	toast.text = tr("RACE_OFF")
 	_refresh()
 	await get_tree().create_timer(RACE_TIME + 0.6).timeout
+	pending = 0
 	var key := ""
 	var args := []
 	if raid:

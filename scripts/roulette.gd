@@ -13,6 +13,7 @@ var spin_btn: Button
 var clear_btn: Button
 var chip_row: HBoxContainer
 var chip := 10
+var pending := 0 # winnings already in the state but not revealed yet
 var sfx := {}
 var coins: CPUParticles2D
 
@@ -119,7 +120,7 @@ func _staked() -> int:
 
 
 func _refresh() -> void:
-	hud.text = tr("ROULETTE_HUD") % [Game.state.money, _staked()]
+	hud.text = tr("ROULETTE_HUD") % [Game.state.money - pending, _staked()]
 	var busy := wheel.spinning
 	spin_btn.disabled = busy or table.bets.is_empty() or Game.state.shadowed
 	clear_btn.disabled = busy or table.bets.is_empty()
@@ -153,9 +154,11 @@ func _spin() -> void:
 	sfx["dice-shake-1"].play()
 	toast.text = tr("ROULETTE_NO_MORE")
 	table.highlight = -1
+	pending = result.win
 	wheel.spin_to(result.number)
 	_refresh()
 	await wheel.landed
+	pending = 0
 	var won: bool = result.win > 0
 	var amount: int = result.win if won else result.staked
 	toast.text = tr("SPIN_WIN" if won else "SPIN_LOSE") % [result.number, amount]

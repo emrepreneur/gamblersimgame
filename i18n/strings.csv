@@ -142,3 +142,9 @@ PAWN_RACK,Sal's clothes rack:,Sal'ın elbise askısı:
 TINY_NO,"Tiny looks at the tracksuit. Then at Larry. 'Blazer, pal. House rules.'","Tiny eşofmana bakıyor. Sonra Larry'ye. ""Blazer dostum. Kurallar böyle."""
 MOTEL_DAY,DAY %d,GÜN %d
 MOTEL_RENT,RENT!,KİRA!
+SPORT_PICK,"Pick a chip, then tap a team to bet and watch","Bir fiş seç, bahis için bir takıma dokun"
+SPORT_KICKOFF,"Kick-off! %s, $%d. Larry can't look.","Maç başladı! %s için $%d. Larry bakamıyor."
+SPORT_TV_IDLE,Today's games,Günün maçları
+SPORT_GOAL,GOAL!,GOL!
+SPORT_FULLTIME,FULL TIME,MAÇ SONU
+SPORT_HUD,Day %d   Cash: $%d   Debt: $%d,Gün %d   Nakit: $%d   Borç: $%d

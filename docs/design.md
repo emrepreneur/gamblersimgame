@@ -71,6 +71,9 @@ Outfit level gates the Strip, checked by Tiny.
 - Bet on any number of roaches; a new field after every race. 8% police raid: all bets lost.
 - Stable (first investment): buy your own roach ($150, speed 3), train once a day ($20, +1 speed, 25% it watches TV instead), enter it once a day ($25). If it wins, purse = $120 + speed × 10.
 
+## Betting shop (Lucky Shot Bets)
+- Smoky shop with a TV. Tap a team to bet the chosen chip; the match plays live on the TV (clock, score bug, GOAL! flashes) with a score that agrees with the result.
+
 ## Game over
 Only eviction: can't pay rent, ends up on the street.
 
