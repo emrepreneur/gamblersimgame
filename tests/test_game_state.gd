@@ -55,6 +55,29 @@ func _init() -> void:
 	check(ou.sell("ITEM_BLAZER").args == [40] and ou.outfit() == 0, "selling the blazer drops the outfit")
 	check(ou.sell("ITEM_TV").is_empty(), "can't sell what you don't have")
 
+	# Blackjack.
+	check(GameState.hand_value([[1, 0], [13, 1]]) == 21, "ace + king = 21")
+	check(GameState.hand_value([[1, 0], [1, 1], [9, 2]]) == 21, "soft aces")
+	check(GameState.hand_value([[10, 0], [9, 1], [5, 2]]) == 24, "bust total")
+	var bjg := GameState.new(17)
+	bjg.money = 100
+	var d0 := bjg.bj_deal(10)
+	check(not d0.is_empty() and bjg.money == 90 + d0.get("paid", 0), "deal takes the bet")
+	check(bjg.bj_deal(10).is_empty() or bjg.bj.is_empty(), "one hand at a time")
+	if not bjg.bj.is_empty():
+		var end := bjg.bj_stand()
+		check(end.key in ["BJ_WIN", "BJ_LOSE", "BJ_PUSH", "BJ_DEALER_BUST"] and bjg.bj.is_empty(), "stand settles the hand")
+	# House edge with a simple 'hit below 17' strategy.
+	var he2 := GameState.new(18)
+	var net2 := 0
+	for i in 20000:
+		he2.money = 10
+		var r2 := he2.bj_deal(10)
+		while not he2.bj.is_empty():
+			r2 = he2.bj_hit() if GameState.hand_value(he2.bj.player) < 17 else he2.bj_stand()
+		net2 += he2.money - 10
+	check(net2 < 0, "blackjack house edge (net %d)" % net2)
+
 	# Roach derby.
 	var rd := GameState.new(13)
 	check(rd.field.size() == 5, "5 roaches per race")

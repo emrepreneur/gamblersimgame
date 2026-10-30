@@ -148,3 +148,18 @@ SPORT_TV_IDLE,Today's games,Günün maçları
 SPORT_GOAL,GOAL!,GOL!
 SPORT_FULLTIME,FULL TIME,MAÇ SONU
 SPORT_HUD,Day %d   Cash: $%d   Debt: $%d,Gün %d   Nakit: $%d   Borç: $%d
+BJ_DEALT,"Dolores deals. 'Hit or stand, hon?'","Dolores dağıtıyor. ""Kart mı, dur mu tatlım?"""
+BJ_HIT,You have %d.,Elinde %d var.
+BJ_BUST,"%d. Bust. Dolores doesn't even blink. (dealer %d, lost $%d)","%d. Battın. Dolores gözünü bile kırpmıyor. (krupiye %d, $%d gitti)"
+BJ_BLACKJACK,"BLACKJACK! (%d vs %d) Larry gets $%d and hugs a stranger.","BLACKJACK! (%d - %d) Larry $%d alıyor ve bir yabancıya sarılıyor."
+BJ_WIN,"%d beats %d. Larry collects $%d.","%d, %d'i yendi. Larry $%d alıyor."
+BJ_PUSH,"%d to %d. Push. Larry keeps his $%d and most of his dignity.","%d - %d berabere. Larry $%d'ını ve onurunun çoğunu koruyor."
+BJ_LOSE,"%d vs dealer's %d. Lost $%d.","%d, krupiyenin %d'ine karşı. $%d gitti."
+BTN_BLACKJACK,Blackjack,Blackjack
+BJ_PLACE,Choose a chip and deal,Bir fiş seç ve dağıt
+BJ_DEAL,Deal,Dağıt
+BJ_HIT_BTN,Hit,Kart
+BJ_STAND_BTN,Stand,Dur
+BJ_DOUBLE_BTN,Double,İkiye katla
+BJ_FELT,BLACKJACK PAYS 3 TO 2 · DEALER STANDS ON 17,BLACKJACK 3'E 2 ÖDER · KRUPİYE 17'DE DURUR
+BJ_DEALER_BUST,"Larry stands on %d, Dolores busts with %d. Larry collects $%d.","Larry %d ile duruyor, Dolores %d ile batıyor. Larry $%d alıyor."

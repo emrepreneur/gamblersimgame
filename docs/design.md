@@ -74,6 +74,9 @@ Outfit level gates the Strip, checked by Tiny.
 ## Betting shop (Lucky Shot Bets)
 - Smoky shop with a TV. Tap a team to bet the chosen chip; the match plays live on the TV (clock, score bug, GOAL! flashes) with a score that agrees with the result.
 
+## Blackjack (casino, with Dolores)
+- One deck, reshuffled every hand. Dealer stands on all 17s. Blackjack pays 3:2. Hit, stand, double (one card).
+
 ## Game over
 Only eviction: can't pay rent, ends up on the street.
 

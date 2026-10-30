@@ -510,6 +510,106 @@ func enter_roach() -> Dictionary:
 	return {"key": "ROACH_ENTERED", "args": [ENTRY_FEE]}
 
 
+# --- Blackjack (casino) ----------------------------------------------------
+# Cards are [rank 1..13, suit 0..3]. Dealer stands on all 17s, blackjack pays 3:2, one deck reshuffled per hand.
+
+var bj := {} # {bet, player: [cards], dealer: [cards], deck: [cards]}; empty = no hand in play
+
+
+static func hand_value(cards: Array) -> int:
+	var total := 0
+	var aces := 0
+	for c in cards:
+		var r: int = c[0]
+		if r == 1:
+			aces += 1
+			total += 11
+		else:
+			total += mini(r, 10)
+	while total > 21 and aces > 0:
+		total -= 10
+		aces -= 1
+	return total
+
+
+func _draw_card() -> Array:
+	return bj.deck.pop_back()
+
+
+func bj_deal(bet: int) -> Dictionary:
+	if not bj.is_empty() or bet <= 0 or bet > money or is_over() or shadowed:
+		return {}
+	money -= bet
+	var deck := []
+	for suit in 4:
+		for rank in range(1, 14):
+			deck.append([rank, suit])
+	for i in range(deck.size() - 1, 0, -1): # shuffle with our own rng so tests are repeatable
+		var j := rng.randi_range(0, i)
+		var tmp = deck[i]; deck[i] = deck[j]; deck[j] = tmp
+	bj = {"bet": bet, "player": [], "dealer": [], "deck": deck}
+	bj.player.append(_draw_card()); bj.dealer.append(_draw_card())
+	bj.player.append(_draw_card()); bj.dealer.append(_draw_card())
+	if hand_value(bj.player) == 21 or hand_value(bj.dealer) == 21:
+		return _bj_settle()
+	return {"key": "BJ_DEALT", "args": []}
+
+
+func bj_hit() -> Dictionary:
+	if bj.is_empty():
+		return {}
+	bj.player.append(_draw_card())
+	if hand_value(bj.player) > 21:
+		return _bj_settle()
+	return {"key": "BJ_HIT", "args": [hand_value(bj.player)]}
+
+
+func bj_stand() -> Dictionary:
+	if bj.is_empty():
+		return {}
+	while hand_value(bj.dealer) < 17:
+		bj.dealer.append(_draw_card())
+	return _bj_settle()
+
+
+## Double the bet, take exactly one card, then stand.
+func bj_double() -> Dictionary:
+	if bj.is_empty() or bj.player.size() != 2 or money < bj.bet:
+		return {}
+	money -= bj.bet
+	bj.bet *= 2
+	bj.player.append(_draw_card())
+	if hand_value(bj.player) > 21:
+		return _bj_settle()
+	return bj_stand()
+
+
+## Pays out and ends the hand. Result keeps the final hands so the table can show them.
+func _bj_settle() -> Dictionary:
+	var p := hand_value(bj.player)
+	var d := hand_value(bj.dealer)
+	var bet: int = bj.bet
+	var natural: bool = p == 21 and bj.player.size() == 2
+	var key := ""
+	var paid := 0
+	if p > 21:
+		key = "BJ_BUST"
+	elif natural and not (d == 21 and bj.dealer.size() == 2):
+		key = "BJ_BLACKJACK"; paid = bet + bet * 3 / 2
+	elif d > 21:
+		key = "BJ_DEALER_BUST"; paid = bet * 2
+	elif p > d:
+		key = "BJ_WIN"; paid = bet * 2
+	elif p == d:
+		key = "BJ_PUSH"; paid = bet
+	else:
+		key = "BJ_LOSE"
+	money += paid
+	var out := {"key": key, "args": [p, d, paid if paid > bet else bet], "player": bj.player, "dealer": bj.dealer, "paid": paid}
+	bj = {}
+	return out
+
+
 # --- Roulette (mini game, European single zero) --------------------------
 
 func spin_roulette(bet: String, amount: int) -> Dictionary:

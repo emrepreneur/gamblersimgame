@@ -24,6 +24,7 @@ godot --headless --script res://tests/smoke_screens.gd
 - `scripts/roulette.gd` + `roulette_wheel.gd` + `roulette_table.gd` roulette drawn in code: spinning wheel, ball, felt table, chips
 - `scripts/race.gd` roach derby drawn in code: garage, crowd, track, raids, Larry's own roach
 - `scripts/motel.gd` Larry's room drawn in code; items disappear as they are sold
-- `scripts/sports.gd` sports betting screen
-- Web preview shortcut: add `#race`, `#roulette`, `#sports` to the URL to open a screen directly
+- `scripts/blackjack.gd` blackjack with Dolores; cards and suits drawn in code
+- `scripts/sports.gd` betting shop with a live match on the TV
+- Web preview shortcut: add `#race`, `#roulette`, `#sports`, `#blackjack`, `#motel` to the URL to open a screen directly
 - `i18n/strings.csv` all text (key, en, tr)
