@@ -28,6 +28,24 @@ func _init() -> void:
 	check(g.money <= money_before - g.FOOD_COST + 25, "food is paid")
 	check(g.loan_limit() == 0, "no new loan while owing")
 
+	# Pawn shop buy-back.
+	var pw := GameState.new(10)
+	pw.sell_next(); pw.sell_next() # iron $15, microwave $40
+	check(pw.shelf.size() == 2 and pw.next_item() == "ITEM_GUITAR", "sold items go on Sal's shelf")
+	pw.money = 100
+	check(pw.buy_back("ITEM_MICROWAVE").args == ["ITEM_MICROWAVE", 60] and pw.money == 40, "buy back at +50%")
+	check(pw.next_item() == "ITEM_MICROWAVE", "bought-back item returns in order")
+	pw.money = 0
+	check(pw.buy_back("ITEM_IRON").is_empty(), "can't afford buy-back")
+	for i in pw.SHELF_DAYS + 1:
+		pw.money = 500; pw.sleep()
+	check(pw.shelf.is_empty(), "Sal sells unclaimed items after a while")
+	var sv := GameState.new(11)
+	sv.sell_next()
+	var sv2 := GameState.new(12)
+	sv2.from_dict(JSON.parse_string(JSON.stringify(sv.to_dict())))
+	check(sv2.shelf == [["ITEM_IRON", 15, 1]] and sv2.owned.size() == sv.owned.size(), "shelf survives save")
+
 	# Joey's visit.
 	var v := GameState.new(5)
 	v.borrow(100)
@@ -56,7 +74,7 @@ func _init() -> void:
 	for i in 5:
 		l.day = l.due_day
 		l.sleep()
-	check(l.step == 0 and l.debt == 0 and l.items_sold == l.ITEMS.size() and l.money <= 25, "desert trip wipes everything")
+	check(l.step == 0 and l.debt == 0 and l.owned.is_empty() and l.money <= 25, "desert trip wipes everything")
 	check(not l.is_over(), "desert trip is not game over")
 	var sh := GameState.new(8)
 	sh.borrow(100); sh.step = 3; sh._miss()
@@ -115,7 +133,7 @@ func _init() -> void:
 	var re := RegEx.create_from_string('"key": "([A-Z_0-9]+)"')
 	for m in re.search_all(src):
 		if not m.get_string(1).ends_with("_"): keys.append(m.get_string(1))
-	keys.append_array(["STEP_3_1", "STEP_3_2", "STEP_3_3", "NEGO_OFFER", "JOEY_HERE", "STATS_DUE", "PLACE_JOEY"])
+	keys.append_array(["PAWN_SHELF", "BTN_BUYBACK", "STEP_3_1", "STEP_3_2", "STEP_3_3", "NEGO_OFFER", "JOEY_HERE", "STATS_DUE", "PLACE_JOEY"])
 	for item in GameState.ITEMS:
 		keys.append_array([item[0], "SELL_" + item[0]])
 	for t in GameState.TEAMS:

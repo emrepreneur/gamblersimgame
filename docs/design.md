@@ -54,6 +54,11 @@ Outfit level gates the Strip, checked by Tiny.
 4. **Shadow:** Joey follows Larry everywhere; bouncers won't let him in.
 5. **Desert trip:** Larry wakes up in the desert in his underwear with a shovel. All cash and items gone, debt wiped. Not game over: he starts again from the bottom.
 
+## Pawn shop (Sal)
+- Selling an item puts it on Sal's shelf. Larry can buy it back for +50% of what Sal paid.
+- Sal keeps it for 5 days, then sells it to a tourist.
+- Items taken by Joey (collateral, ladder step 2) or lost in the desert trip are gone for good.
+
 ## Game over
 Only eviction: can't pay rent, ends up on the street.
 

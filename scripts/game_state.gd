@@ -14,6 +14,9 @@ const LOAN_FEE_PCT := 20
 const GRACE_DAYS := 3 # new deadline after a missed one
 const LAST_STEP := 5 # desert trip
 
+const BUYBACK_PCT := 150 # Sal's markup to buy an item back
+const SHELF_DAYS := 5 # then Sal sells it to someone else
+
 # Sold in this order: [key, price]
 const ITEMS := [
 	["ITEM_IRON", 15], ["ITEM_MICROWAVE", 40], ["ITEM_GUITAR", 80],
@@ -24,7 +27,8 @@ var rng := RandomNumberGenerator.new()
 var day := 1
 var money := 100
 var debt := 0
-var items_sold := 0
+var owned: Array = ITEMS.map(func(i): return i[0]) # item keys Larry still has, in sell order
+var shelf: Array = [] # at Sal's: [key, price Sal paid, day sold]
 var worked_today := false
 var evicted := false
 var matches: Array = [] # [[home_team, away_team, home_win_chance], ...]
@@ -60,17 +64,54 @@ func work() -> Dictionary:
 	return {"key": "WORK", "args": [WORK_PAY]}
 
 
+static func item_value(key: String) -> int:
+	for i in ITEMS:
+		if i[0] == key:
+			return i[1]
+	return 0
+
+
+func next_item() -> String:
+	return owned[0] if not owned.is_empty() else ""
+
+
 func next_item_value() -> int:
-	return ITEMS[items_sold][1] if items_sold < ITEMS.size() else 0
+	return item_value(next_item())
+
+
+## Removes and returns Larry's next item key ("" if he has nothing left).
+func _take_next() -> String:
+	return owned.pop_front() if not owned.is_empty() else ""
 
 
 func sell_next() -> Dictionary:
-	if items_sold >= ITEMS.size() or is_over():
+	if owned.is_empty() or is_over():
 		return {}
-	var item: Array = ITEMS[items_sold]
-	items_sold += 1
-	money += item[1]
-	return {"key": "SELL_" + item[0], "args": [item[1]]}
+	var key := _take_next()
+	var price := item_value(key)
+	money += price
+	shelf.append([key, price, day])
+	return {"key": "SELL_" + key, "args": [price]}
+
+
+static func buyback_price(price_paid: int) -> int:
+	return price_paid * BUYBACK_PCT / 100
+
+
+func buy_back(key: String) -> Dictionary:
+	for i in shelf.size():
+		if shelf[i][0] != key:
+			continue
+		var cost := buyback_price(shelf[i][1])
+		if cost > money or is_over():
+			return {}
+		money -= cost
+		shelf.remove_at(i)
+		owned.append(key)
+		var order := ITEMS.map(func(it): return it[0])
+		owned.sort_custom(func(a, b): return order.find(a) < order.find(b))
+		return {"key": "BUYBACK", "args": [key, cost]}
+	return {}
 
 
 func days_to_rent() -> int:
@@ -91,6 +132,10 @@ func sleep() -> Array:
 		money -= RENT
 		log.append({"key": "RENT_PAID", "args": [RENT]})
 	day += 1
+	for i in range(shelf.size() - 1, -1, -1):
+		if day - shelf[i][2] > SHELF_DAYS:
+			log.append({"key": "PAWN_GONE", "args": [shelf[i][0]]})
+			shelf.remove_at(i)
 	worked_today = false
 	negotiated = false
 	offer = []
@@ -165,10 +210,10 @@ func pay_joey(): # -> Dictionary, or [result, ladder step] on a miss
 
 ## Vinnie takes the next item at half its value.
 func give_collateral() -> Dictionary:
-	if not collection_due() or items_sold >= ITEMS.size():
+	if not collection_due() or owned.is_empty():
 		return {}
-	var item: Array = ITEMS[items_sold]
-	items_sold += 1
+	var item := [_take_next(), 0]
+	item[1] = item_value(item[0])
 	var value: int = mini(item[1] / 2, debt)
 	debt -= value
 	if debt == 0:
@@ -250,9 +295,9 @@ func _miss() -> Dictionary:
 				_cleared(0)
 			return {"key": "STEP_1", "args": [took]}
 		2: # an item vanishes from the motel
-			if items_sold < ITEMS.size():
-				var item: Array = ITEMS[items_sold]
-				items_sold += 1
+			if not owned.is_empty():
+				var item := [_take_next(), 0]
+				item[1] = item_value(item[0])
 				var value: int = mini(item[1] / 2, debt)
 				debt -= value
 				if debt == 0:
@@ -271,7 +316,7 @@ func _miss() -> Dictionary:
 			return {"key": "STEP_4", "args": []}
 	# Desert trip: everything gone, debt wiped, start from the bottom.
 	money = 0
-	items_sold = ITEMS.size()
+	owned.clear()
 	debt = 0
 	_cleared(0)
 	rep = 20
@@ -343,7 +388,7 @@ static func roulette_payout(bet: String, n: int) -> int:
 
 # --- Save ----------------------------------------------------------------
 
-const SAVED := ["day", "money", "debt", "items_sold", "worked_today", "evicted", "matches",
+const SAVED := ["day", "money", "debt", "owned", "shelf", "worked_today", "evicted", "matches",
 	"due_day", "step", "rep", "used_mom", "negotiated", "offer", "shadowed"]
 
 
@@ -359,8 +404,9 @@ func from_dict(d: Dictionary) -> void:
 		if d.has(k):
 			set(k, d[k])
 	# JSON turns ints into floats
-	for k in ["day", "money", "debt", "items_sold", "due_day", "step", "rep"]:
+	for k in ["day", "money", "debt", "due_day", "step", "rep"]:
 		set(k, int(get(k)))
 	offer = offer.map(func(v): return int(v))
+	shelf = shelf.map(func(e): return [e[0], int(e[1]), int(e[2])])
 	for m in matches:
 		m[0] = int(m[0]); m[1] = int(m[1])

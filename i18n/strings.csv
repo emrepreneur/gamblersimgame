@@ -6,7 +6,7 @@ INTRO,"Meet Lucky Larry. A motel room off the Strip, $100, and a gut feeling tha
 BTN_SPORTS,Sports betting,Spor bahisleri
 BTN_ROULETTE,Roulette,Rulet
 BTN_WORK,Wash dishes ($%d),Bulaşık yıka ($%d)
-BTN_SELL,Sell: %s,Sat: %s
+BTN_SELL,Sell %s ($%d),%s sat ($%d)
 BTN_BORROW,Borrow $%d from Vinnie,Vinnie'den $%d al
 BTN_REPAY,Pay back Vinnie,Vinnie'ye borcunu öde
 BTN_SLEEP,Go to sleep,Uyu
@@ -108,3 +108,7 @@ ROULETTE_HUD,Cash: $%d   On the table: $%d,Nakit: $%d   Masada: $%d
 ROULETTE_EVEN_SHORT,EVEN,ÇİFT
 ROULETTE_ODD_SHORT,ODD,TEK
 BTN_BACK_SHORT,Exit,Çık
+PAWN_SHELF,"On Sal's shelf (he won't wait forever):","Sal'ın rafında (sonsuza kadar beklemez):"
+BTN_BUYBACK,Buy back %s: $%d (%d days left),%s geri al: $%d (%d gün kaldı)
+BUYBACK,"Bought back %s for $%d. Sal smiles like he just won the lottery.","%s $%d'a geri alındı. Sal piyango vurmuş gibi gülümsüyor."
+PAWN_GONE,"Sal sold %s to a tourist. 'You snooze, you lose, Larry.'","Sal %s turiste sattı. ""Uyuyan kaybeder Larry."""

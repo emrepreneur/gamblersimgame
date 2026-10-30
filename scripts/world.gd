@@ -336,9 +336,13 @@ func _open_place(id: String) -> void:
 			"DINER":
 				Game.make_button(box, tr("BTN_WORK") % s.WORK_PAY, _act.bind(id, s.work)).disabled = s.worked_today
 			"PAWN":
-				var has_items: bool = s.items_sold < s.ITEMS.size()
-				var next_item: String = tr(s.ITEMS[s.items_sold][0]) if has_items else ""
-				Game.make_button(box, tr("BTN_SELL") % next_item, _act.bind(id, s.sell_next)).disabled = not has_items
+				Game.make_button(box, tr("BTN_SELL") % [tr(s.next_item()), s.next_item_value()], _act.bind(id, s.sell_next)).disabled = s.owned.is_empty()
+				if not s.shelf.is_empty():
+					Game.make_label(box, tr("PAWN_SHELF"))
+				for e in s.shelf:
+					var cost: int = s.buyback_price(e[1])
+					var days_left: int = s.SHELF_DAYS - (s.day - e[2])
+					Game.make_button(box, tr("BTN_BUYBACK") % [tr(e[0]), cost, days_left], _act.bind(id, s.buy_back.bind(e[0]))).disabled = cost > s.money
 			"VINNIE":
 				var limit: int = s.loan_limit()
 				if limit > 0:
@@ -377,8 +381,8 @@ func _joey_buttons(box: VBoxContainer) -> void:
 	if not s.negotiated:
 		for line in ["tip", "mom", "flatter"]:
 			Game.make_button(box, tr("NEGO_LINE_" + line.to_upper()), _act.bind("JOEY", s.negotiate.bind(line)))
-	if s.items_sold < s.ITEMS.size():
-		Game.make_button(box, tr("BTN_COLLATERAL") % [tr(s.ITEMS[s.items_sold][0]), s.next_item_value() / 2], _act.bind("JOEY", s.give_collateral))
+	if not s.owned.is_empty():
+		Game.make_button(box, tr("BTN_COLLATERAL") % [tr(s.next_item()), s.next_item_value() / 2], _act.bind("JOEY", s.give_collateral))
 	Game.make_button(box, tr("BTN_RUN"), _act.bind("JOEY", s.run_from_joey))
 
 

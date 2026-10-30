@@ -38,5 +38,21 @@ func _init() -> void:
 			b.pressed.emit()
 			await process_frame
 		print("joey round ", round, ": ", pressed, " -> step=", game.state.step, " debt=", game.state.debt)
+	# Pawn shop: sell two items, open the panel, buy one back via its button.
+	game.new_game()
+	reload_current_scene()
+	await process_frame
+	await process_frame
+	game.state.sell_next(); game.state.sell_next()
+	current_scene._open_place("PAWN")
+	await process_frame
+	var labels := buttons().map(func(b): return b.text)
+	print("pawn: ", labels)
+	for b in buttons():
+		if b.text.begins_with(tr("BTN_BUYBACK").split(" ")[0]) and not b.disabled:
+			b.pressed.emit()
+			break
+	await process_frame
+	print("after buyback: owned=", game.state.owned.size(), " shelf=", game.state.shelf.size(), " money=", game.state.money)
 	game.new_game()
 	quit()
