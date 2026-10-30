@@ -5,6 +5,10 @@ const GameState := preload("res://scripts/game_state.gd")
 var failed := 0
 
 
+func csv_has(k: String) -> bool:
+	return FileAccess.get_file_as_string("res://i18n/strings.csv").contains("\n" + k + ",")
+
+
 func check(cond: bool, msg: String) -> void:
 	if not cond:
 		failed += 1
@@ -194,6 +198,38 @@ func _init() -> void:
 	var b := GameState.new(4)
 	b.from_dict(JSON.parse_string(JSON.stringify(a.to_dict())))
 	check(b.money == 77 and b.debt == 33 and b.day == 5 and str(b.matches) == str(a.matches), "save round trip")
+
+	# Homes: move up, can't skip money, drop a level when rent fails.
+	var hm_s := GameState.new(11)
+	hm_s.money = 1000
+	check(not hm_s.move_up().is_empty() and hm_s.home == 1 and hm_s.money == 0, "move to flat")
+	check(hm_s.move_up().is_empty(), "can't afford suite")
+	check(hm_s.loan_limit() == 100 + hm_s.rep * 4 + GameState.LOAN_PER_HOME, "flat raises loan limit")
+	hm_s.day = 7
+	var hl: Array = hm_s.sleep()
+	check(hm_s.home == 0 and not hm_s.evicted and hl.any(func(r): return r.key == "HOME_DOWN"), "rent fail drops a level")
+	# Badges: once each.
+	hm_s.money = 2000
+	check(hm_s.check_badges().any(func(r): return r.args[0] == "BADGE_GRAND"), "badge earned")
+	check(hm_s.check_badges().is_empty(), "badge not twice")
+	# Every morning event resolves on both choices.
+	for ev in GameState.EVENTS:
+		for choice in 2:
+			var ev_s := GameState.new(choice)
+			ev_s.money = 500
+			ev_s.roach = {"name": "Rocky", "speed": 3, "trained_day": 0, "raced_day": 0}
+			ev_s.sell("ITEM_IRON")
+			ev_s.event = ev
+			check(not ev_s.resolve_event(choice).is_empty() and ev_s.event == "", "event %s choice %d" % [ev, choice])
+	for k in ["PLACE_EVENT", "BTN_MOVE", "BADGES"]:
+		check(csv_has(k), "missing " + k)
+	for hm in GameState.HOMES:
+		check(csv_has(hm[0]), "missing " + hm[0])
+	for ev in GameState.EVENTS:
+		for suf in ["", "_A", "_B"]:
+			check(csv_has(ev + suf), "missing " + ev + suf)
+	for bk in ["BADGE_DAY7", "BADGE_DAY30", "BADGE_DAY100", "BADGE_GRAND", "BADGE_EMPTY", "BADGE_ESCAPED", "BADGE_ROACH3", "BADGE_RANCH"]:
+		check(csv_has(bk), "missing " + bk)
 
 	# Every key the code can emit must exist in the CSV.
 	var csv := FileAccess.get_file_as_string("res://i18n/strings.csv")

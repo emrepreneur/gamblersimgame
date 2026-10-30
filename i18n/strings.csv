@@ -163,3 +163,65 @@ BJ_STAND_BTN,Stand,Dur
 BJ_DOUBLE_BTN,Double,İkiye katla
 BJ_FELT,BLACKJACK PAYS 3 TO 2 · DEALER STANDS ON 17,BLACKJACK 3'E 2 ÖDER · KRUPİYE 17'DE DURUR
 BJ_DEALER_BUST,"Larry stands on %d, Dolores busts with %d. Larry collects $%d.","Larry %d ile duruyor, Dolores %d ile batıyor. Larry $%d alıyor."
+PLACE_EVENT,Good morning,Günaydın
+BTN_MOVE,Move to: %s ($%d),Taşın: %s ($%d)
+BADGES,Badges %d/%d,Rozet %d/%d
+HOME_MOTEL,Desert Rose Motel,Desert Rose Motel
+HOME_FLAT,Rented flat,Kiralık daire
+HOME_SUITE,Suite on the Strip,Strip'te süit
+HOME_RANCH,Desert ranch with a pool,Havuzlu çöl evi
+HOME_MOVED_1,Larry paid a $%d deposit for a flat. It has a door that locks and a neighbour who doesn't scream. Vinnie hears about it and gets generous.,"Larry $%d depozito verip bir daire tuttu. Kapısı kilitleniyor, komşusu bağırmıyor. Vinnie bunu duyunca cömertleşiyor."
+HOME_MOVED_2,$%d for a suite on the Strip. The towels are softer than anything Larry has ever owned.,Strip'te bir süite $%d. Havlular Larry'nin hayatında sahip olduğu her şeyden daha yumuşak.
+HOME_MOVED_3,"$%d. A ranch in the desert with a pool. Larry floats in it and, for once, isn't thinking about odds. You made it. The game goes on.",$%d. Çölde havuzlu bir ev. Larry havuzda sırtüstü yatıyor ve ilk kez oranları düşünmüyor. Başardın. Oyun devam ediyor.
+HOME_DOWN,"Couldn't make rent. Larry's bags are on the curb, he's back at the %s.","Kira ödenemedi. Larry'nin çantaları kaldırımda, yine %s günlerine döndü."
+BADGE_GOT,Badge earned: %s,Rozet kazandın: %s
+BADGE_DAY7,A week in Vegas,Vegas'ta bir hafta
+BADGE_DAY30,Still standing (30 days),Hâlâ ayakta (30 gün)
+BADGE_DAY100,Vegas legend (100 days),Vegas efsanesi (100 gün)
+BADGE_GRAND,First grand,İlk bin dolar
+BADGE_EMPTY,Sold everything,Her şeyi sattı
+BADGE_ESCAPED,Outran Joey,Joey'den kaçtı
+BADGE_ROACH3,Roach champion (3 wins),Hamamböceği şampiyonu (3 galibiyet)
+BADGE_RANCH,The pool life,Havuz başı hayatı
+EV_EARL,"Earl from next door knocks. ""Can I borrow your microwave? Just for tonight. Swear on my mother.""","Yan komşu Earl kapıyı çalıyor. ""Mikrodalganı ödünç alabilir miyim? Sadece bu gece. Annemin üstüne yemin ederim."""
+EV_EARL_A,"Sure, Earl",Al bakalım Earl
+EV_EARL_B,Not a chance,Hayatta olmaz
+EV_EARL_NO,Earl calls Larry cheap through the wall for an hour.,Earl bir saat boyunca duvarın arkasından Larry'ye cimri diye bağırıyor.
+EV_EARL_GONE,Earl moved out overnight. So did the microwave.,Earl gece taşınmış. Mikrodalga da onunla gitmiş.
+EV_EARL_BACK,Earl brings it back with $%d he 'found in it'. Larry doesn't ask.,"Earl mikrodalgayı geri getiriyor, yanında da ""içinde bulduğu"" $%d var. Larry sormuyor."
+EV_TIP,"Vinnie's cousin leans in. ""%s tonight. Can't lose. Twenty bucks and it's yours.""","Vinnie'nin kuzeni yaklaşıp fısıldıyor: ""Bu akşam %s. Kaybetmez. Yirmi dolara bilgi senin."""
+EV_TIP_A,Pay $20,20 dolar ver
+EV_TIP_B,Walk away,Yürü git
+EV_TIP_PAID,"""%s. Trust me."" The cousin was also sure about the last eleven.","""%s. Bana güven."" Kuzen önceki on bir maçtan da emindi."
+EV_TIP_NO,The cousin shrugs and sells the tip to a pigeon.,Kuzen omuz silkip bilgiyi bir güvercine satıyor.
+EV_MOM,"Mom calls. ""Larry, are you eating? Do you need anything?""","Annen arıyor. ""Larry, yemek yiyor musun? Bir şeye ihtiyacın var mı?"""
+EV_MOM_A,Ask for $50,50 dolar iste
+EV_MOM_B,"""I'm great, Ma""","""Çok iyiyim anne"""
+EV_MOM_MONEY,She wires $%d and a photo of the dog. Larry feels exactly as bad as he should.,Annen $%d ve köpeğin bir fotoğrafını yolluyor. Larry tam hak ettiği kadar kötü hissediyor.
+EV_MOM_LIE,He tells her he's a dentist now. She's so proud.,Ona artık diş hekimi olduğunu söylüyor. Annen gururdan ağlıyor.
+EV_PARCEL,A parcel on the doormat. Not for Larry. It rattles promisingly.,Paspasın üstünde bir kargo var. Larry'ye gelmemiş. Sallayınca umut verici sesler çıkıyor.
+EV_PARCEL_A,Open it and sell it,Aç ve sat
+EV_PARCEL_B,Leave it,Bırak kalsın
+EV_PARCEL_SOLD,"Electric toothbrush, still sealed. Sal gives $%d and no questions.","İçinden ambalajı açılmamış bir şarjlı diş fırçası çıkıyor. Sal $%d veriyor, soru sormuyor."
+EV_PARCEL_LEFT,Larry leaves it. The universe takes note. Probably.,Larry dokunmuyor. Evren bunu bir kenara yazıyor. Herhalde.
+EV_EX,"Larry's ex-wife on the phone. ""Where's my money, Larry?""","Larry'nin eski karısı telefonda. ""Param nerede, Larry?"""
+EV_EX_A,Pay her $100,100 dolar öde
+EV_EX_B,Hang up,Telefonu kapat
+EV_EX_PAID,"He sends $%d. She says ""that's a start"" and hangs up first.","$%d yolluyor. Kadın ""bu bir başlangıç"" deyip telefonu ondan önce kapatıyor."
+EV_EX_LAWYER,"A lawyer's letter under the door. That'll be $%d, Mr Larry.","Kapının altından avukat mektubu. $%d lütfen, Larry Bey."
+EV_EX_FORGOT,She doesn't call back. Larry decides that means she forgave him.,Geri aramıyor. Larry bunu affedildiğine yoruyor.
+EV_SAL,"Sal at the door. ""Something of yours is still on my shelf. Twenty percent over, today only. I'm a soft man.""","Sal kapıda. ""Senin bir eşyan hâlâ rafımda. Bugünlük yüzde yirmi farkla, yumuşak kalpli adamım."""
+EV_SAL_A,Buy it back,Geri al
+EV_SAL_B,Maybe later,Sonra belki
+EV_SAL_BOUGHT,%s is home again. Cost $%d.,%s eve döndü. $%d tuttu.
+EV_SAL_NO,Sal sighs like a disappointed uncle.,Sal hayal kırıklığına uğramış bir amca gibi iç çekiyor.
+EV_MEETING,"A flyer under the door: Gamblers Anonymous, free coffee and donuts.","Kapının altında bir broşür: Adsız Kumarbazlar toplantısı, kahve ve donut bedava."
+EV_MEETING_A,"Go, for the donuts","Git, donut için"
+EV_MEETING_B,Sell the flyer,Broşürü sat
+EV_MEETING_WENT,Larry ate enough donuts to save $%d on food. He took a pamphlet. He used it as a coaster.,"Larry o kadar donut yedi ki yemekten $%d kâr etti. Bir broşür de aldı, bardak altlığı yaptı."
+EV_MEETING_SOLD,Somebody actually paid $%d for it. Vegas.,Biri gerçekten $%d verdi. Vegas işte.
+EV_ROACH,%s isn't in the shoebox. A tiny hole in the wall. Freedom smells like the next room.,%s ayakkabı kutusunda yok. Duvarda minicik bir delik. Özgürlüğün kokusu yan odadan geliyor.
+EV_ROACH_A,Search the walls,Duvarları ara
+EV_ROACH_B,Let him go,Bırak gitsin
+EV_ROACH_FOUND,"Found %s behind the fridge, eating a fry. Back in training.",%s buzdolabının arkasında patates kızartması yerken bulundu. Antrenmana dönüş.
+EV_ROACH_GONE,%s is gone. Larry pours one out.,%s gitti. Larry onun anısına bir yudum döküyor.

@@ -82,3 +82,26 @@ Only eviction: can't pay rent, ends up on the street.
 
 ## First release scope
 One neighbourhood (motel, pawn shop, betting shop, Vinnie), one casino with roulette, first investment: cockroach stable. Everything else after.
+
+## Homes (progression)
+
+| Level | Home | Move-in | Rent/week |
+|---|---|---|---|
+| 0 | Desert Rose Motel | start | $200 |
+| 1 | Rented flat | $1,000 | $350 |
+| 2 | Suite on the Strip | $5,000 | $800 |
+| 3 | Desert ranch with a pool | $25,000 | $1,500 |
+
+Move from the motel room screen. Missing rent drops one level; only the motel evicts. Each level raises Vinnie's loan limit by $200. The ranch is the "you made it" moment, the game goes on.
+
+## Badges
+
+A week, 30 days, 100 days, first $1,000, sold everything, outran Joey, roach wins 3 races, the ranch.
+
+## Morning events
+
+40% of mornings, one two-choice event: Earl borrows the microwave, Vinnie's cousin sells a tip, Mom calls, a stranger's parcel, the ex-wife wants money, Sal offers a buy-back at +20%, a Gamblers Anonymous flyer, the roach escapes.
+
+## Next
+
+The roach grows into a racehorse as Larry makes money (approved idea, not built yet).

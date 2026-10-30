@@ -45,6 +45,11 @@ func _ready() -> void:
 	log_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	log_label.add_theme_font_size_override("font_size", 24)
 	inner.add_child(log_label)
+	var s = Game.state
+	if s.next_home_price() > 0 and not Game.is_over():
+		var move := Game.make_button(inner, tr("BTN_MOVE") % [tr(s.HOMES[s.home + 1][0]), s.next_home_price()], func():
+			Game.record(s.move_up()); get_tree().reload_current_scene())
+		move.disabled = s.money < s.next_home_price()
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
 	inner.add_child(row)
@@ -59,7 +64,8 @@ func _ready() -> void:
 
 func _refresh() -> void:
 	var e: Dictionary = Game.log[-1]
-	log_label.text = Game.stats_text() + "\n" + Game.entry_text(e)
+	var s = Game.state
+	log_label.text = "%s  ·  %s\n%s\n%s" % [tr(s.HOMES[s.home][0]), tr("BADGES") % [s.badges.size(), 8], Game.stats_text(), Game.entry_text(e)]
 	room.queue_redraw()
 
 
@@ -73,8 +79,8 @@ func _sleep() -> void:
 	tw.tween_property(fade, "color:a", 1.0, 0.5)
 	await tw.finished
 	Game.record(Game.state.sleep())
-	if Game.state.collection_due() or Game.is_over():
-		Game.go("world" if not Game.is_over() else "motel") # Joey is waiting outside
+	if Game.state.collection_due() or Game.is_over() or Game.state.event != "":
+		Game.go("world" if not Game.is_over() else "motel") # Joey or a morning surprise is waiting outside
 		return
 	_refresh()
 	tw = create_tween()

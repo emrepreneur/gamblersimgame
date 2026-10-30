@@ -131,6 +131,8 @@ func _ready() -> void:
 		_open_place("MOTEL")
 	elif Game.state.collection_due():
 		_joey_arrives(things)
+	elif Game.state.event != "":
+		_open_place("EVENT")
 
 
 func _ground_tile(c: Vector2i) -> String:
@@ -331,7 +333,11 @@ func _open_place(id: String) -> void:
 	margin.add_child(box)
 
 	Game.make_label(box, tr("PLACE_" + id)).add_theme_font_size_override("font_size", 40)
-	Game.make_label(box, Game.entry_text(Game.log[-1]))
+	var shown: Dictionary = Game.log[-1]
+	for e in Game.log: # the event's own line, even if a badge was logged after it
+		if id == "EVENT" and e.key == s.event:
+			shown = e
+	Game.make_label(box, Game.entry_text(shown))
 
 	if Game.is_over():
 		Game.make_button(box, tr("BTN_RESTART"), func():
@@ -379,6 +385,11 @@ func _open_place(id: String) -> void:
 						Game.make_button(box, tr("BTN_BLACKJACK"), Game.go.bind("blackjack"))
 			"DERBY":
 				Game.make_button(box, tr("BTN_DERBY"), Game.go.bind("race"))
+			"EVENT":
+				for i in 2:
+					Game.make_button(box, tr(s.event + ("_A" if i == 0 else "_B")), _act.bind("EVENT", s.resolve_event.bind(i)))
+				_show()
+				return
 			"JOEY":
 				_joey_buttons(box)
 				_show()
@@ -414,7 +425,9 @@ func _act(id: String, action: Callable) -> void:
 	_refresh_hud()
 	if id == "JOEY" and not Game.state.collection_due() and Game.state.offer.is_empty():
 		id = "VINNIE_DONE"
-	if id == "VINNIE_DONE":
+	if id == "EVENT":
+		_result_only()
+	elif id == "VINNIE_DONE":
 		_joey_leaves()
 		_result_only()
 	else:
@@ -435,5 +448,8 @@ func _result_only() -> void:
 	for e in Game.log.slice(-2):
 		lines.append(Game.entry_text(e))
 	Game.make_label(box, "\n\n".join(lines))
-	Game.make_button(box, tr("BTN_LEAVE"), func(): panel.visible = false)
+	Game.make_button(box, tr("BTN_LEAVE"), func():
+		panel.visible = false
+		if Game.state.event != "": # Joey came first; the morning surprise is still waiting
+			_open_place("EVENT"))
 	panel.visible = true

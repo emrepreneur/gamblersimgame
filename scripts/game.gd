@@ -34,7 +34,7 @@ func _ready() -> void:
 
 ## Add results to the log and save. Accepts a result dict or an array of them.
 func record(result) -> void:
-	for r in (result if result is Array else [result]):
+	for r in (result if result is Array else [result]) + state.check_badges():
 		if not r.is_empty():
 			log.append(r)
 	log = log.slice(-LOG_LINES)

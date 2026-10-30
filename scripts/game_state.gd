@@ -24,6 +24,11 @@ const ITEMS := [
 	["ITEM_BLAZER", 40], ["ITEM_SUIT", 200], # not owned at start; bought from Sal's rack
 ]
 const START_ITEMS := 6
+# Homes: [key, price to move in, weekly rent]. Can't pay rent: drop one level (eviction only from the motel).
+const HOMES := [["HOME_MOTEL", 0, 200], ["HOME_FLAT", 1000, 350], ["HOME_SUITE", 5000, 800], ["HOME_RANCH", 25000, 1500]]
+const LOAN_PER_HOME := 200 # Vinnie lends more to a man with an address
+const EVENT_PCT := 40
+const EVENTS := ["EV_EARL", "EV_TIP", "EV_MOM", "EV_PARCEL", "EV_EX", "EV_SAL", "EV_MEETING", "EV_ROACH"]
 const OUTFITS := {"ITEM_BLAZER": 80, "ITEM_SUIT": 400} # Sal's rack prices
 const CASINO_OUTFIT := 1 # blazer or better to get past Tiny
 
@@ -45,6 +50,11 @@ var used_mom := false # the hospital excuse only works once
 var negotiated := false # one negotiation per deadline
 var offer: Array = [] # Vinnie's current [days, pct], empty when none
 var shadowed := false # Joey follows Larry; no casino, no betting shop
+var home := 0 # index into HOMES
+var badges: Array = [] # earned badge keys
+var event := "" # morning event waiting for Larry's choice
+var event_arg := 0 # e.g. the team in the cousin's tip
+var escaped_joey := false
 
 
 func _init(seed_value: int = -1) -> void:
@@ -153,11 +163,15 @@ func sleep() -> Array:
 		log.append(_miss()) # going to bed instead of facing Joey counts as missing him
 	money = maxi(money - FOOD_COST, 0)
 	if days_to_rent() == 1:
-		if money < RENT:
-			evicted = true
-			return log + [{"key": "END_EVICTED", "args": []}]
-		money -= RENT
-		log.append({"key": "RENT_PAID", "args": [RENT]})
+		if money < rent():
+			if home == 0:
+				evicted = true
+				return log + [{"key": "END_EVICTED", "args": []}]
+			home -= 1
+			log.append({"key": "HOME_DOWN", "args": [HOMES[home][0]]})
+		else:
+			money -= rent()
+			log.append({"key": "RENT_PAID", "args": [rent()]})
 	day += 1
 	for i in range(shelf.size() - 1, -1, -1):
 		if day - shelf[i][2] > SHELF_DAYS:
@@ -171,18 +185,134 @@ func sleep() -> Array:
 		_new_field()
 	if due_day == day + 1:
 		log.append({"key": "VINNIE_TEXT", "args": []})
-	var event: String = ["EVENT_QUIET", "EVENT_LUCKY_DREAM", "EVENT_FOUND_CHIP"][rng.randi() % 3]
-	if event == "EVENT_FOUND_CHIP":
+	event = ""
+	if rng.randi_range(1, 100) <= EVENT_PCT:
+		var options := EVENTS.filter(_event_possible)
+		event = options[rng.randi() % options.size()]
+		event_arg = (matches[0][1] if matches[0][2] >= 0.5 else matches[0][0]) if event == "EV_TIP" else 0 # the underdog, naturally
+		var args := {"EV_TIP": ["TEAM_%d" % event_arg], "EV_ROACH": [roach.get("name", "")]}
+		log.append({"key": event, "args": args.get(event, [])})
+		return log
+	var quiet: String = ["EVENT_QUIET", "EVENT_LUCKY_DREAM", "EVENT_FOUND_CHIP"][rng.randi() % 3]
+	if quiet == "EVENT_FOUND_CHIP":
 		money += 25
-	log.append({"key": event, "args": []})
+	log.append({"key": quiet, "args": []})
 	return log
+
+
+# --- Homes, badges, morning events -----------------------------------------
+
+func rent() -> int:
+	return HOMES[home][2]
+
+
+func next_home_price() -> int:
+	return HOMES[home + 1][1] if home + 1 < HOMES.size() else 0
+
+
+func move_up() -> Dictionary:
+	var price := next_home_price()
+	if price == 0 or money < price or is_over():
+		return {}
+	money -= price
+	home += 1
+	return {"key": "HOME_MOVED_%d" % home, "args": [price]}
+
+
+## Badges earned since the last check, as log results.
+func check_badges() -> Array:
+	var out := []
+	var earned := {
+		"BADGE_DAY7": day >= 7, "BADGE_DAY30": day >= 30, "BADGE_DAY100": day >= 100,
+		"BADGE_GRAND": money >= 1000, "BADGE_EMPTY": owned.is_empty(),
+		"BADGE_ESCAPED": escaped_joey, "BADGE_ROACH3": roach.get("wins", 0) >= 3, "BADGE_RANCH": home == HOMES.size() - 1,
+	}
+	for k in earned:
+		if earned[k] and not k in badges:
+			badges.append(k)
+			out.append({"key": "BADGE_GOT", "args": [k]})
+	return out
+
+
+func _event_possible(e: String) -> bool:
+	match e:
+		"EV_EARL": return "ITEM_MICROWAVE" in owned
+		"EV_SAL": return not shelf.is_empty()
+		"EV_ROACH": return not roach.is_empty()
+		"EV_EX": return money > 0
+	return true
+
+
+## choice 0 = first button, 1 = second.
+func resolve_event(choice: int) -> Dictionary:
+	if event == "" or is_over():
+		return {}
+	var e := event
+	event = ""
+	var yes := choice == 0
+	match e:
+		"EV_EARL":
+			if not yes:
+				return {"key": "EV_EARL_NO", "args": []}
+			if rng.randf() < 0.5:
+				owned.erase("ITEM_MICROWAVE")
+				return {"key": "EV_EARL_GONE", "args": []}
+			money += 30
+			return {"key": "EV_EARL_BACK", "args": [30]}
+		"EV_TIP":
+			if yes and money >= 20:
+				money -= 20
+				return {"key": "EV_TIP_PAID", "args": ["TEAM_%d" % event_arg]}
+			return {"key": "EV_TIP_NO", "args": []}
+		"EV_MOM":
+			if yes:
+				money += 50
+				return {"key": "EV_MOM_MONEY", "args": [50]}
+			return {"key": "EV_MOM_LIE", "args": []}
+		"EV_PARCEL":
+			if yes:
+				money += 40
+				return {"key": "EV_PARCEL_SOLD", "args": [40]}
+			return {"key": "EV_PARCEL_LEFT", "args": []}
+		"EV_EX":
+			if yes:
+				var paid := mini(money, 100)
+				money -= paid
+				return {"key": "EV_EX_PAID", "args": [paid]}
+			if rng.randf() < 0.4:
+				var fee := mini(money, 150)
+				money -= fee
+				return {"key": "EV_EX_LAWYER", "args": [fee]}
+			return {"key": "EV_EX_FORGOT", "args": []}
+		"EV_SAL":
+			var it: Array = shelf[0]
+			var cost: int = it[1] * 120 / 100
+			if yes and money >= cost:
+				money -= cost
+				shelf.remove_at(0)
+				_give(it[0])
+				return {"key": "EV_SAL_BOUGHT", "args": [it[0], cost]}
+			return {"key": "EV_SAL_NO", "args": []}
+		"EV_MEETING":
+			if yes:
+				money += 20
+				return {"key": "EV_MEETING_WENT", "args": [20]}
+			money += 1
+			return {"key": "EV_MEETING_SOLD", "args": [1]}
+		"EV_ROACH":
+			if yes and rng.randf() < 0.6:
+				return {"key": "EV_ROACH_FOUND", "args": [roach.name]}
+			var name: String = roach.name
+			roach = {}
+			return {"key": "EV_ROACH_GONE", "args": [name]}
+	return {}
 
 
 # --- Vinnie: loans --------------------------------------------------------
 
 ## Biggest loan Vinnie will give right now. Grows with reputation.
 func loan_limit() -> int:
-	return 0 if debt > 0 or step >= 3 else 100 + rep * 4
+	return 0 if debt > 0 or step >= 3 else 100 + rep * 4 + home * LOAN_PER_HOME
 
 
 func borrow(amount: int) -> Dictionary:
@@ -259,6 +389,7 @@ func run_from_joey(): # -> Dictionary, or [result, ladder step]
 	rep = maxi(rep - 10, 0)
 	if rng.randf() < 0.5:
 		due_day = day + 1
+		escaped_joey = true
 		return {"key": "JOEY_ESCAPED", "args": []}
 	return [{"key": "JOEY_CAUGHT", "args": []}, _miss()]
 
@@ -466,6 +597,7 @@ func run_race(bets: Dictionary) -> Dictionary:
 			out.win = int(bets[first] * roach_odds(chances[first]))
 		if own == first:
 			out.purse = PURSE + roach.speed * 10
+			roach.wins = roach.get("wins", 0) + 1
 		money += out.win + out.purse
 	_new_field()
 	return out
@@ -647,7 +779,8 @@ static func roulette_payout(bet: String, n: int) -> int:
 # --- Save ----------------------------------------------------------------
 
 const SAVED := ["field", "roach", "day", "money", "debt", "owned", "taken", "shelf", "worked_today", "evicted", "matches",
-	"due_day", "step", "rep", "used_mom", "negotiated", "offer", "shadowed"]
+	"due_day", "step", "rep", "used_mom", "negotiated", "offer", "shadowed",
+	"home", "badges", "event", "event_arg", "escaped_joey"]
 
 
 func to_dict() -> Dictionary:
@@ -662,11 +795,11 @@ func from_dict(d: Dictionary) -> void:
 		if d.has(k):
 			set(k, d[k])
 	# JSON turns ints into floats
-	for k in ["day", "money", "debt", "due_day", "step", "rep"]:
+	for k in ["day", "money", "debt", "due_day", "step", "rep", "home", "event_arg"]:
 		set(k, int(get(k)))
 	offer = offer.map(func(v): return int(v))
 	field = field.map(func(r): return [r[0], int(r[1])])
-	for k in ["speed", "trained_day", "raced_day"]:
+	for k in ["speed", "trained_day", "raced_day", "wins"]:
 		if roach.has(k):
 			roach[k] = int(roach[k])
 	shelf = shelf.map(func(e): return [e[0], int(e[1]), int(e[2])])
