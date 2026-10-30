@@ -48,6 +48,7 @@ func _init(seed_value: int = -1) -> void:
 	else:
 		rng.randomize()
 	_new_matches()
+	_new_field()
 
 
 func is_over() -> bool:
@@ -140,6 +141,8 @@ func sleep() -> Array:
 	negotiated = false
 	offer = []
 	_new_matches()
+	if own_in_field() >= 0: # entry doesn't carry over to a new day
+		_new_field()
 	if due_day == day + 1:
 		log.append({"key": "VINNIE_TEXT", "args": []})
 	var event: String = ["EVENT_QUIET", "EVENT_LUCKY_DREAM", "EVENT_FOUND_CHIP"][rng.randi() % 3]
@@ -352,6 +355,133 @@ func bet_match(index: int, home: bool, amount: int) -> Dictionary:
 	return {"key": "SPORT_LOSE_%d" % rng.randi_range(1, 2), "args": [amount]}
 
 
+# --- Roach derby (illegal, back alley) -----------------------------------
+
+const ROACH_NAMES := ["Sir Crunch", "Lil' Greasy", "Speedy Pete", "The Professor", "Big Tony",
+	"Crumbs", "Night Train", "Mama's Boy", "Dirty Dave", "Lucky Strike", "Señor Scuttle", "Fast Eddie"]
+const RACE_FIELD := 5
+const RAID_PCT := 8
+const ROACH_PRICE := 150
+const TRAIN_COST := 20
+const ENTRY_FEE := 25
+const PURSE := 120
+const ROACH_MAX := 10
+
+var field: Array = [] # [[name, speed], ...]; own roach is the one named roach.name
+var roach := {} # Larry's own: {name, speed, trained_day, raced_day}
+
+
+func _new_field(with_own := false) -> void:
+	field.clear()
+	var names := ROACH_NAMES.duplicate()
+	names.shuffle()
+	for i in RACE_FIELD - (1 if with_own else 0):
+		field.append([names[i], rng.randi_range(2, 7)])
+	if with_own:
+		field.insert(rng.randi() % RACE_FIELD, [roach.name, roach.speed])
+
+
+## Win chance of each roach in the field: speed squared, normalised.
+func field_chances() -> Array:
+	var total := 0.0
+	for r in field:
+		total += r[1] * r[1]
+	return field.map(func(r): return r[1] * r[1] / total)
+
+
+static func roach_odds(chance: float) -> float:
+	return snappedf(0.85 / chance, 0.1)
+
+
+## Finish order (field indices), weighted by speed. Seeded rng, so tests can predict it.
+func _finish_order() -> Array:
+	var left := range(field.size())
+	var order := []
+	while not left.is_empty():
+		var total := 0.0
+		for i in left:
+			total += field[i][1] * field[i][1]
+		var pick := rng.randf() * total
+		for i in left:
+			pick -= field[i][1] * field[i][1]
+			if pick <= 0:
+				order.append(i)
+				left.erase(i)
+				break
+	return order
+
+
+## bets: {field index: amount}. own_entered: Larry's roach is in this field.
+## Returns {order, win, staked, raid, purse}.
+func run_race(bets: Dictionary) -> Dictionary:
+	if field.is_empty():
+		_new_field()
+	var staked := 0
+	for i in bets:
+		if bets[i] <= 0 or i < 0 or i >= field.size():
+			return {}
+		staked += bets[i]
+	if staked > money or is_over() or shadowed:
+		return {}
+	var own := own_in_field()
+	if staked == 0 and own < 0:
+		return {}
+	money -= staked
+	var out := {"order": [], "win": 0, "staked": staked, "raid": false, "purse": 0}
+	if rng.randi_range(1, 100) <= RAID_PCT:
+		out.raid = true
+	else:
+		out.order = _finish_order()
+		var chances := field_chances()
+		var first: int = out.order[0]
+		if bets.has(first):
+			out.win = int(bets[first] * roach_odds(chances[first]))
+		if own == first:
+			out.purse = PURSE + roach.speed * 10
+		money += out.win + out.purse
+	_new_field()
+	return out
+
+
+func own_in_field() -> int:
+	if roach.is_empty():
+		return -1
+	for i in field.size():
+		if field[i][0] == roach.name:
+			return i
+	return -1
+
+
+func buy_roach() -> Dictionary:
+	if not roach.is_empty() or money < ROACH_PRICE or is_over():
+		return {}
+	money -= ROACH_PRICE
+	var name: String = ROACH_NAMES[rng.randi() % ROACH_NAMES.size()]
+	roach = {"name": "Larry's " + name, "speed": 3, "trained_day": 0, "raced_day": 0}
+	return {"key": "ROACH_BOUGHT", "args": [roach.name, ROACH_PRICE]}
+
+
+func train_roach() -> Dictionary:
+	if roach.is_empty() or roach.trained_day == day or money < TRAIN_COST or roach.speed >= ROACH_MAX:
+		return {}
+	money -= TRAIN_COST
+	roach.trained_day = day
+	if rng.randi_range(1, 100) <= 25:
+		return {"key": "ROACH_LAZY", "args": [TRAIN_COST]}
+	roach.speed += 1
+	return {"key": "ROACH_TRAINED", "args": [roach.speed]}
+
+
+## Put Larry's roach in the next race (once a day, costs an entry fee).
+func enter_roach() -> Dictionary:
+	if roach.is_empty() or roach.raced_day == day or money < ENTRY_FEE or own_in_field() >= 0:
+		return {}
+	money -= ENTRY_FEE
+	roach.raced_day = day
+	_new_field(true)
+	return {"key": "ROACH_ENTERED", "args": [ENTRY_FEE]}
+
+
 # --- Roulette (mini game, European single zero) --------------------------
 
 func spin_roulette(bet: String, amount: int) -> Dictionary:
@@ -388,7 +518,7 @@ static func roulette_payout(bet: String, n: int) -> int:
 
 # --- Save ----------------------------------------------------------------
 
-const SAVED := ["day", "money", "debt", "owned", "shelf", "worked_today", "evicted", "matches",
+const SAVED := ["field", "roach", "day", "money", "debt", "owned", "shelf", "worked_today", "evicted", "matches",
 	"due_day", "step", "rep", "used_mom", "negotiated", "offer", "shadowed"]
 
 
@@ -407,6 +537,10 @@ func from_dict(d: Dictionary) -> void:
 	for k in ["day", "money", "debt", "due_day", "step", "rep"]:
 		set(k, int(get(k)))
 	offer = offer.map(func(v): return int(v))
+	field = field.map(func(r): return [r[0], int(r[1])])
+	for k in ["speed", "trained_day", "raced_day"]:
+		if roach.has(k):
+			roach[k] = int(roach[k])
 	shelf = shelf.map(func(e): return [e[0], int(e[1]), int(e[2])])
 	for m in matches:
 		m[0] = int(m[0]); m[1] = int(m[1])

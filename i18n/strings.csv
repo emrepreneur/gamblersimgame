@@ -112,3 +112,23 @@ PAWN_SHELF,"On Sal's shelf (he won't wait forever):","Sal'ın rafında (sonsuza 
 BTN_BUYBACK,Buy back %s: $%d (%d days left),%s geri al: $%d (%d gün kaldı)
 BUYBACK,"Bought back %s for $%d. Sal smiles like he just won the lottery.","%s $%d'a geri alındı. Sal piyango vurmuş gibi gülümsüyor."
 PAWN_GONE,"Sal sold %s to a tourist. 'You snooze, you lose, Larry.'","Sal %s turiste sattı. ""Uyuyan kaybeder Larry."""
+PLACE_DERBY,Roach Derby,Hamamböceği Derbisi
+BTN_DERBY,Watch the races,Yarışlara bak
+RACE_PICK,Tap a roach to bet on it,Bahis için bir hamamböceğine dokun
+RACE_GO,RACE!,KOŞ!
+RACE_OFF,"And they're off!","Ve başladılar!"
+RACE_ROW,%d. %s · speed %d · x%.1f,%d. %s · hız %d · x%.1f
+ROACH_YOURS, (yours), (senin)
+RACE_WINNER,#%d WINS!,%d NUMARA KAZANDI!
+RACE_RAID_SHOUT,POLICE!,POLİS!
+RACE_RAID,"Police raid! Everyone runs, roaches included. $%d gone.","Polis baskını! Herkes kaçıyor, hamamböcekleri dahil. $%d gitti."
+RACE_WIN,"%s wins! Larry pockets $%d and kisses the cardboard.","%s kazandı! Larry $%d cebe atıp kartonu öpüyor."
+RACE_LOSE,"%s wins. Larry's $%d stays in the garage. Forever.","%s kazandı. Larry'nin $%d'ı garajda kaldı. Sonsuza dek."
+ROACH_BUY,Buy your own racing roach ($%d),Kendi yarış hamamböceğini al ($%d)
+ROACH_STATS,%s · speed %d/%d,%s · hız %d/%d
+ROACH_TRAIN,Train ($%d),Antrenman ($%d)
+ROACH_ENTER,Enter race ($%d),Yarışa sok ($%d)
+ROACH_BOUGHT,"Meet %s. Cost $%d. Larry already loves it more than his car.","İşte %s. Fiyatı $%d. Larry onu şimdiden arabasından çok seviyor."
+ROACH_LAZY,"The roach refused to train and watched TV instead. $%d wasted.","Hamamböceği antrenman yapmayı reddedip televizyon izledi. $%d boşa gitti."
+ROACH_TRAINED,"Tiny treadmill, tiny weights. Speed is now %d.","Minik koşu bandı, minik ağırlıklar. Hız artık %d."
+ROACH_ENTERED,"Entry fee $%d paid. Your roach is in the next race.","$%d giriş ücreti ödendi. Hamamböceğin bir sonraki yarışta."

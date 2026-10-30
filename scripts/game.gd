@@ -25,6 +25,11 @@ func _ready() -> void:
 		log = data.get("log", [])
 	if log.is_empty():
 		log = [{"key": "INTRO", "args": []}]
+	# Web preview shortcut: index.html#race opens that screen directly.
+	if OS.has_feature("web"):
+		var hash := str(JavaScriptBridge.eval("location.hash")).trim_prefix("#")
+		if hash != "" and ResourceLoader.exists("res://scenes/%s.tscn" % hash):
+			go.call_deferred(hash)
 
 
 ## Add results to the log and save. Accepts a result dict or an array of them.

@@ -10,7 +10,7 @@ func _init() -> void:
 	await process_frame
 	var game = root.get_node("Game")
 	game.new_game()
-	for scene in ["world", "sports", "roulette", "world"]:
+	for scene in ["world", "sports", "roulette", "race", "world"]:
 		change_scene_to_file("res://scenes/%s.tscn" % scene)
 		await process_frame
 		await process_frame

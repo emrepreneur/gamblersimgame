@@ -22,6 +22,7 @@ const PLACES := {
 	"BETS": {"tiles": [Vector2i(9, 4)], "stack": ["029"], "sign": "#7ee081"},
 	"VINNIE": {"tiles": [Vector2i(1, 9)], "stack": ["045", "016"], "sign": "#6ec6ff"},
 	"PAWN": {"tiles": [Vector2i(4, 9)], "stack": ["024", "048"], "sign": "#c39bff"},
+	"DERBY": {"tiles": [Vector2i(10, 9)], "stack": ["030"], "sign": "#ffd23f"},
 }
 # Filler buildings: [tile, stack]
 const FILLERS := [
@@ -32,7 +33,7 @@ const FILLERS := [
 	[Vector2i(2, 5), ["036", "072"]], [Vector2i(5, 5), ["027"]], [Vector2i(6, 4), ["020", "024"]],
 	[Vector2i(10, 5), ["033", "080"]], [Vector2i(11, 4), ["041", "039"]], [Vector2i(7, 6), ["046"]],
 	[Vector2i(0, 6), ["022", "023"]], [Vector2i(2, 10), ["037", "081"]], [Vector2i(5, 10), ["026"]],
-	[Vector2i(6, 9), ["030", "031", "076"]], [Vector2i(9, 10), ["042", "043"]], [Vector2i(10, 9), ["019"]],
+	[Vector2i(6, 9), ["030", "031", "076"]], [Vector2i(9, 10), ["042", "043"]], 
 	[Vector2i(11, 10), ["035", "032"]], [Vector2i(0, 11), ["018"]], [Vector2i(7, 11), ["021", "016"]],
 ]
 const TREES := [Vector2i(2, 6), Vector2i(6, 6), Vector2i(10, 6), Vector2i(1, 11), Vector2i(6, 11), Vector2i(10, 11), Vector2i(2, 0), Vector2i(9, 0)]
@@ -356,6 +357,8 @@ func _open_place(id: String) -> void:
 					Game.make_label(box, tr("SHADOW_BOUNCER"))
 				else:
 					Game.make_button(box, tr("BTN_SPORTS" if id == "BETS" else "BTN_ROULETTE"), Game.go.bind("sports" if id == "BETS" else "roulette"))
+			"DERBY":
+				Game.make_button(box, tr("BTN_DERBY"), Game.go.bind("race"))
 			"JOEY":
 				_joey_buttons(box)
 				_show()

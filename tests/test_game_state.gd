@@ -46,6 +46,46 @@ func _init() -> void:
 	sv2.from_dict(JSON.parse_string(JSON.stringify(sv.to_dict())))
 	check(sv2.shelf == [["ITEM_IRON", 15, 1]] and sv2.owned.size() == sv.owned.size(), "shelf survives save")
 
+	# Roach derby.
+	var rd := GameState.new(13)
+	check(rd.field.size() == 5, "5 roaches per race")
+	var ch := rd.field_chances()
+	check(absf(ch.reduce(func(a, b): return a + b, 0.0) - 1.0) < 0.001, "chances sum to 1")
+	rd.money = 100
+	var race := rd.run_race({0: 10, 1: 10})
+	check(race.staked == 20 and rd.money == 80 + race.win, "race: stake taken, winnings paid")
+	check(race.raid or race.order.size() == 5, "race: full finish order unless raided")
+	check(rd.run_race({}).is_empty(), "no bet and no own roach: no race")
+	rd.money = 1000
+	check(rd.buy_roach().key == "ROACH_BOUGHT" and rd.roach.speed == 3, "buy a roach")
+	check(rd.buy_roach().is_empty(), "only one roach")
+	rd.train_roach()
+	check(rd.train_roach().is_empty(), "train once a day")
+	check(rd.enter_roach().key == "ROACH_ENTERED" and rd.own_in_field() >= 0, "enter own roach")
+	check(rd.enter_roach().is_empty(), "one race a day for your roach")
+	var before := rd.money
+	var own_race := rd.run_race({})
+	check(not own_race.is_empty() and rd.money == before + own_race.purse, "own roach can race with no bet; purse paid on win")
+	check(rd.own_in_field() < 0, "field resets after the race")
+	# Training pays off: a speed-10 roach wins far more often than a speed-3 one.
+	var wins := [0, 0]
+	for sp in [3, 10]:
+		var t := GameState.new(14)
+		t.roach = {"name": "X", "speed": sp, "trained_day": 0, "raced_day": 0}
+		for i in 2000:
+			t._new_field(true)
+			if t._finish_order()[0] == t.own_in_field():
+				wins[0 if sp == 3 else 1] += 1
+	check(wins[1] > wins[0] * 2, "trained roach wins more (%d vs %d)" % wins)
+	# House edge on roach bets.
+	var he := GameState.new(15)
+	var net := 0
+	for i in 20000:
+		he.money = 10
+		he.run_race({i % 5: 10})
+		net += he.money - 10
+	check(net < 0, "roach house edge (net %d)" % net)
+
 	# Joey's visit.
 	var v := GameState.new(5)
 	v.borrow(100)

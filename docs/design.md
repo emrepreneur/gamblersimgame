@@ -59,6 +59,11 @@ Outfit level gates the Strip, checked by Tiny.
 - Sal keeps it for 5 days, then sells it to a tourist.
 - Items taken by Joey (collateral, ladder step 2) or lost in the desert trip are gone for good.
 
+## Roach derby (back-alley garage)
+- 5 roaches per race, each with a speed (2-7). Win chance ~ speed², odds = 0.85 / chance (house edge).
+- Bet on any number of roaches; a new field after every race. 8% police raid: all bets lost.
+- Stable (first investment): buy your own roach ($150, speed 3), train once a day ($20, +1 speed, 25% it watches TV instead), enter it once a day ($25). If it wins, purse = $120 + speed × 10.
+
 ## Game over
 Only eviction: can't pay rent, ends up on the street.
 
