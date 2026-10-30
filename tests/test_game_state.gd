@@ -46,6 +46,15 @@ func _init() -> void:
 	sv2.from_dict(JSON.parse_string(JSON.stringify(sv.to_dict())))
 	check(sv2.shelf == [["ITEM_IRON", 15, 1]] and sv2.owned.size() == sv.owned.size(), "shelf survives save")
 
+	# Outfits and free choice of what to sell.
+	var ou := GameState.new(16)
+	check(ou.outfit() == 0 and ou.owned.size() == 6, "start in a tracksuit with 6 items")
+	ou.money = 500
+	check(ou.buy_outfit("ITEM_BLAZER").key == "OUTFIT_BOUGHT" and ou.outfit() == 1 and ou.money == 420, "buy blazer")
+	check(ou.sell("ITEM_TV").key == "SELL_ITEM_TV" and not "ITEM_TV" in ou.owned and ou.next_item() == "ITEM_IRON", "sell any item")
+	check(ou.sell("ITEM_BLAZER").args == [40] and ou.outfit() == 0, "selling the blazer drops the outfit")
+	check(ou.sell("ITEM_TV").is_empty(), "can't sell what you don't have")
+
 	# Roach derby.
 	var rd := GameState.new(13)
 	check(rd.field.size() == 5, "5 roaches per race")

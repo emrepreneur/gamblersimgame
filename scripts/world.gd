@@ -242,7 +242,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _on_arrived() -> void:
 	Game.larry_pos = larry.position
-	if going_into != "":
+	if going_into == "MOTEL" and not Game.is_over():
+		going_into = ""
+		Game.go("motel")
+	elif going_into != "":
 		larry.face(centre(PLACES[going_into].tiles[0]) - larry.position)
 		_open_place(going_into)
 		going_into = ""
@@ -337,7 +340,17 @@ func _open_place(id: String) -> void:
 			"DINER":
 				Game.make_button(box, tr("BTN_WORK") % s.WORK_PAY, _act.bind(id, s.work)).disabled = s.worked_today
 			"PAWN":
-				Game.make_button(box, tr("BTN_SELL") % [tr(s.next_item()), s.next_item_value()], _act.bind(id, s.sell_next)).disabled = s.owned.is_empty()
+				var grid := GridContainer.new()
+				grid.columns = 2
+				box.add_child(grid)
+				for key in s.owned:
+					var b := Game.make_button(grid, tr("BTN_SELL") % [tr(key), s.item_value(key)], _act.bind(id, s.sell.bind(key)))
+					b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+					b.add_theme_font_size_override("font_size", 24)
+				Game.make_label(box, tr("PAWN_RACK"))
+				for key in s.OUTFITS:
+					if not key in s.owned:
+						Game.make_button(box, tr("BTN_OUTFIT") % [tr(key), s.OUTFITS[key]], _act.bind(id, s.buy_outfit.bind(key))).disabled = s.money < s.OUTFITS[key]
 				if not s.shelf.is_empty():
 					Game.make_label(box, tr("PAWN_SHELF"))
 				for e in s.shelf:
@@ -353,7 +366,9 @@ func _open_place(id: String) -> void:
 					Game.make_label(box, tr("VINNIE_NO_LOAN"))
 				Game.make_button(box, tr("BTN_REPAY"), _act.bind(id, s.repay)).disabled = s.debt == 0 or s.money == 0
 			"BETS", "CASINO":
-				if s.shadowed:
+				if id == "CASINO" and s.outfit() < s.CASINO_OUTFIT:
+					Game.make_label(box, tr("TINY_NO"))
+				elif s.shadowed:
 					Game.make_label(box, tr("SHADOW_BOUNCER"))
 				else:
 					Game.make_button(box, tr("BTN_SPORTS" if id == "BETS" else "BTN_ROULETTE"), Game.go.bind("sports" if id == "BETS" else "roulette"))

@@ -132,3 +132,13 @@ ROACH_BOUGHT,"Meet %s. Cost $%d. Larry already loves it more than his car.","İ�
 ROACH_LAZY,"The roach refused to train and watched TV instead. $%d wasted.","Hamamböceği antrenman yapmayı reddedip televizyon izledi. $%d boşa gitti."
 ROACH_TRAINED,"Tiny treadmill, tiny weights. Speed is now %d.","Minik koşu bandı, minik ağırlıklar. Hız artık %d."
 ROACH_ENTERED,"Entry fee $%d paid. Your roach is in the next race.","$%d giriş ücreti ödendi. Hamamböceğin bir sonraki yarışta."
+ITEM_BLAZER,the blazer,blazer ceket
+ITEM_SUIT,the suit,takım elbise
+SELL_ITEM_BLAZER,"Sold the blazer for $%d. The sleeves were too short anyway.","Blazer'ı $%d'a sattı. Kolları zaten kısaydı."
+SELL_ITEM_SUIT,"Sold the suit for $%d. Back to the tracksuit, back to his roots.","Takımı $%d'a sattı. Eşofmana, köklerine geri döndü."
+OUTFIT_BOUGHT,"Bought %s for $%d. Larry checks himself out in every window.","%s $%d'a alındı. Larry her vitrinde kendine bakıyor."
+BTN_OUTFIT,Buy %s ($%d),%s al ($%d)
+PAWN_RACK,Sal's clothes rack:,Sal'ın elbise askısı:
+TINY_NO,"Tiny looks at the tracksuit. Then at Larry. 'Blazer, pal. House rules.'","Tiny eşofmana bakıyor. Sonra Larry'ye. ""Blazer dostum. Kurallar böyle."""
+MOTEL_DAY,DAY %d,GÜN %d
+MOTEL_RENT,RENT!,KİRA!

@@ -10,7 +10,7 @@ func _init() -> void:
 	await process_frame
 	var game = root.get_node("Game")
 	game.new_game()
-	for scene in ["world", "sports", "roulette", "race", "world"]:
+	for scene in ["world", "sports", "roulette", "race", "motel", "world"]:
 		change_scene_to_file("res://scenes/%s.tscn" % scene)
 		await process_frame
 		await process_frame
@@ -49,7 +49,7 @@ func _init() -> void:
 	var labels := buttons().map(func(b): return b.text)
 	print("pawn: ", labels)
 	for b in buttons():
-		if b.text.begins_with(tr("BTN_BUYBACK").split(" ")[0]) and not b.disabled:
+		if b.text.begins_with(tr("BTN_BUYBACK").get_slice("%", 0)) and not b.disabled:
 			b.pressed.emit()
 			break
 	await process_frame

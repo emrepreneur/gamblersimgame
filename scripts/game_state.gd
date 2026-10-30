@@ -21,13 +21,18 @@ const SHELF_DAYS := 5 # then Sal sells it to someone else
 const ITEMS := [
 	["ITEM_IRON", 15], ["ITEM_MICROWAVE", 40], ["ITEM_GUITAR", 80],
 	["ITEM_TV", 150], ["ITEM_WATCH", 300], ["ITEM_CAR", 1500],
+	["ITEM_BLAZER", 40], ["ITEM_SUIT", 200], # not owned at start; bought from Sal's rack
 ]
+const START_ITEMS := 6
+const OUTFITS := {"ITEM_BLAZER": 80, "ITEM_SUIT": 400} # Sal's rack prices
+const CASINO_OUTFIT := 1 # blazer or better to get past Tiny
 
 var rng := RandomNumberGenerator.new()
 var day := 1
 var money := 100
 var debt := 0
-var owned: Array = ITEMS.map(func(i): return i[0]) # item keys Larry still has, in sell order
+var owned: Array = ITEMS.slice(0, START_ITEMS).map(func(i): return i[0]) # item keys Larry has, in ITEMS order
+var taken: Array = [] # items Vinnie's people took (the motel room shows a note)
 var shelf: Array = [] # at Sal's: [key, price Sal paid, day sold]
 var worked_today := false
 var evicted := false
@@ -86,13 +91,36 @@ func _take_next() -> String:
 
 
 func sell_next() -> Dictionary:
-	if owned.is_empty() or is_over():
+	return sell(next_item())
+
+
+func sell(key: String) -> Dictionary:
+	if not key in owned or is_over():
 		return {}
-	var key := _take_next()
+	owned.erase(key)
 	var price := item_value(key)
 	money += price
 	shelf.append([key, price, day])
 	return {"key": "SELL_" + key, "args": [price]}
+
+
+## 0 tracksuit, 1 blazer, 2 suit.
+func outfit() -> int:
+	return 2 if "ITEM_SUIT" in owned else (1 if "ITEM_BLAZER" in owned else 0)
+
+
+func buy_outfit(key: String) -> Dictionary:
+	if not OUTFITS.has(key) or key in owned or money < OUTFITS[key] or is_over():
+		return {}
+	money -= OUTFITS[key]
+	_give(key)
+	return {"key": "OUTFIT_BOUGHT", "args": [key, OUTFITS[key]]}
+
+
+func _give(key: String) -> void:
+	owned.append(key)
+	var order := ITEMS.map(func(it): return it[0])
+	owned.sort_custom(func(a, b): return order.find(a) < order.find(b))
 
 
 static func buyback_price(price_paid: int) -> int:
@@ -108,9 +136,7 @@ func buy_back(key: String) -> Dictionary:
 			return {}
 		money -= cost
 		shelf.remove_at(i)
-		owned.append(key)
-		var order := ITEMS.map(func(it): return it[0])
-		owned.sort_custom(func(a, b): return order.find(a) < order.find(b))
+		_give(key)
 		return {"key": "BUYBACK", "args": [key, cost]}
 	return {}
 
@@ -217,6 +243,7 @@ func give_collateral() -> Dictionary:
 		return {}
 	var item := [_take_next(), 0]
 	item[1] = item_value(item[0])
+	taken.append(item[0])
 	var value: int = mini(item[1] / 2, debt)
 	debt -= value
 	if debt == 0:
@@ -301,6 +328,7 @@ func _miss() -> Dictionary:
 			if not owned.is_empty():
 				var item := [_take_next(), 0]
 				item[1] = item_value(item[0])
+				taken.append(item[0])
 				var value: int = mini(item[1] / 2, debt)
 				debt -= value
 				if debt == 0:
@@ -518,7 +546,7 @@ static func roulette_payout(bet: String, n: int) -> int:
 
 # --- Save ----------------------------------------------------------------
 
-const SAVED := ["field", "roach", "day", "money", "debt", "owned", "shelf", "worked_today", "evicted", "matches",
+const SAVED := ["field", "roach", "day", "money", "debt", "owned", "taken", "shelf", "worked_today", "evicted", "matches",
 	"due_day", "step", "rep", "used_mom", "negotiated", "offer", "shadowed"]
 
 

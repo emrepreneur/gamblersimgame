@@ -32,6 +32,7 @@ Outfit level gates the Strip, checked by Tiny.
 - Tracksuit: back streets only.
 - Second-hand blazer (~$80): casino floor.
 - Suit (~$400): penthouse poker (also needs an invitation).
+- Implemented: Tiny turns Larry away from the casino without a blazer. Suit gate comes with poker nights.
 - The blazer is a sellable item. Selling it to bet and then getting turned away at the casino is intended.
 
 ## Vinnie
@@ -54,7 +55,13 @@ Outfit level gates the Strip, checked by Tiny.
 4. **Shadow:** Joey follows Larry everywhere; bouncers won't let him in.
 5. **Desert trip:** Larry wakes up in the desert in his underwear with a shovel. All cash and items gone, debt wiped. Not game over: he starts again from the bottom.
 
+## Motel room
+- Tapping the motel takes Larry inside. Every item he owns is in the room (iron on its board, TV playing horse races, the car outside the window...).
+- Sold items leave a dusty outline. Items Vinnie's people took leave a sticky note: "Thanks. V."
+- Calendar on the wall circles rent day. Sleeping happens here.
+
 ## Pawn shop (Sal)
+- Larry chooses which item to sell (no fixed order). Sal also has a clothes rack: blazer $80, suit $400.
 - Selling an item puts it on Sal's shelf. Larry can buy it back for +50% of what Sal paid.
 - Sal keeps it for 5 days, then sells it to a tourist.
 - Items taken by Joey (collateral, ladder step 2) or lost in the desert trip are gone for good.
