@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://gujw0kum1n6l"
-path="res://.godot/imported/fredoka-latin-600-normal.woff2-c120789b9c1cc53ab9f91d012108c4c4.fontdata"
+uid="uid://dlmvg0nk8mf5e"
+path="res://.godot/imported/baloo-2-latin-ext-600-normal.woff2-a40e030bd498714758c29f1fb245737b.fontdata"
 
 [deps]
 
-source_file="res://assets/fonts/fredoka-latin-600-normal.woff2"
-dest_files=["res://.godot/imported/fredoka-latin-600-normal.woff2-c120789b9c1cc53ab9f91d012108c4c4.fontdata"]
+source_file="res://assets/fonts/baloo-2-latin-ext-600-normal.woff2"
+dest_files=["res://.godot/imported/baloo-2-latin-ext-600-normal.woff2-a40e030bd498714758c29f1fb245737b.fontdata"]
 
 [params]
 

@@ -206,7 +206,8 @@ func _door(cell: Vector2i) -> Vector2i:
 
 
 func _path_to(cell: Vector2i) -> Array:
-	var from := cell_at(larry.position - Vector2(0, 1))
+	# Mid-walk: carry on to the tile he's stepping onto instead of turning back.
+	var from := cell_at((larry.path[0] if not larry.path.is_empty() else larry.position) - Vector2(0, 1))
 	from = from.clamp(Vector2i.ZERO, Vector2i(GRID - 1, GRID - 1))
 	var pts := []
 	for c in astar.get_id_path(from, cell, true):
@@ -219,15 +220,17 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if panel.visible or Game.is_over() or joey != null:
 		return
-	var p := get_global_mouse_position()
+	var p: Vector2 = make_input_local(event).position # the tap itself, not the last known mouse spot
 	# Buildings: front-most opaque pixel wins.
 	var best := ""
 	var best_y := -INF
 	for pair in hit_sprites:
 		var sp: Sprite2D = pair[0]
-		if pair[1] != "" and sp.is_pixel_opaque(sp.to_local(p)) and sp.get_parent().position.y > best_y:
+		if sp.is_pixel_opaque(sp.to_local(p)) and sp.get_parent().position.y > best_y:
 			best = pair[1]
 			best_y = sp.get_parent().position.y
+	if best_y > -INF and best == "":
+		return # a building you can't enter: don't walk to the tile hidden behind it
 	if best != "":
 		going_into = best
 		var door := _front_door(best)

@@ -132,11 +132,11 @@ func make_label(box: Container, text: String, expand := false) -> Label:
 	return l
 
 
-## Kenney UI pack + Fredoka, set on the default theme so every Control picks it up.
+## Kenney UI pack + Baloo 2, set on the default theme so every Control picks it up.
 func _setup_theme() -> void:
 	var t := ThemeDB.get_default_theme()
-	var font: FontFile = load("res://assets/fonts/fredoka-latin-600-normal.woff2")
-	font.fallbacks = [load("res://assets/fonts/fredoka-latin-ext-600-normal.woff2")] # Turkish letters live in the latin-ext file
+	var font: FontFile = load("res://assets/fonts/baloo-2-latin-600-normal.woff2")
+	font.fallbacks = [load("res://assets/fonts/baloo-2-latin-ext-600-normal.woff2")] # Turkish letters live in the latin-ext file
 	t.default_font = font
 	t.default_font_size = 30
 
