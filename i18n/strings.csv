@@ -99,3 +99,12 @@ STEP_3_3,"A favour: make sure cockroach #4 loses. Cockroach #4 is very sad. $%d 
 STEP_4,"Joey now follows Larry everywhere. The bouncers have noticed.","Joey artık Larry'yi her yere takip ediyor. Fedailer de fark etti."
 STEP_5,"Larry wakes up in the desert. Underwear, a shovel, nothing else. The debt is gone. So is everything.","Larry çölde uyanıyor. İç çamaşırı ve bir kürek, başka bir şey yok. Borç silinmiş. Her şeyle birlikte."
 SHADOW_BOUNCER,"Tiny looks at Joey behind Larry. 'Not today, pal.'","Tiny, Larry'nin arkasındaki Joey'e bakıyor. ""Bugün olmaz dostum."""
+ROULETTE_PLACE,Tap the table to place chips,Fiş koymak için masaya dokun
+ROULETTE_SPIN,SPIN!,ÇEVİR!
+ROULETTE_CLEAR,Clear,Temizle
+ROULETTE_NO_MORE,No more bets...,Bahisler kapandı...
+ROULETTE_BROKE,"Out of cash. Dolores raises an eyebrow.","Para bitti. Dolores bir kaşını kaldırıyor."
+ROULETTE_HUD,Cash: $%d   On the table: $%d,Nakit: $%d   Masada: $%d
+ROULETTE_EVEN_SHORT,EVEN,ÇİFT
+ROULETTE_ODD_SHORT,ODD,TEK
+BTN_BACK_SHORT,Exit,Çık

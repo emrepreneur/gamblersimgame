@@ -310,13 +310,25 @@ func bet_match(index: int, home: bool, amount: int) -> Dictionary:
 # --- Roulette (mini game, European single zero) --------------------------
 
 func spin_roulette(bet: String, amount: int) -> Dictionary:
-	if amount <= 0 or amount > money or is_over() or shadowed:
+	return spin_roulette_bets({bet: amount})
+
+
+## Several chips on the table, one spin. bets: {bet: amount}. Returns {number, win, staked}.
+func spin_roulette_bets(bets: Dictionary) -> Dictionary:
+	var staked := 0
+	for b in bets:
+		if bets[b] <= 0:
+			return {}
+		staked += bets[b]
+	if staked <= 0 or staked > money or is_over() or shadowed:
 		return {}
-	money -= amount
+	money -= staked
 	var n := rng.randi_range(0, 36)
-	var payout := roulette_payout(bet, n)
-	money += amount * payout
-	return {"number": n, "win": amount * payout}
+	var win := 0
+	for b in bets:
+		win += bets[b] * roulette_payout(b, n)
+	money += win
+	return {"number": n, "win": win, "staked": staked}
 
 
 ## bet is "red", "black", "even", "odd" or a number "0".."36". Returns the multiplier (incl. stake).

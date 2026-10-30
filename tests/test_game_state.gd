@@ -77,6 +77,12 @@ func _init() -> void:
 	check(GameState.roulette_payout("black", 0) == 0 and GameState.roulette_payout("even", 0) == 0, "zero loses outside bets")
 	check(GameState.roulette_payout("17", 17) == 36 and GameState.roulette_payout("17", 18) == 0, "straight number")
 
+	var mb := GameState.new(9)
+	mb.money = 100
+	var res := mb.spin_roulette_bets({"red": 10, "black": 10, "0": 10})
+	check(res.staked == 30 and mb.money == 70 + res.win, "multi-bet: one spin, one payout")
+	check(mb.spin_roulette_bets({"red": 500}).is_empty(), "can't bet more than cash")
+
 	# House edge on both games over many bets.
 	var h := GameState.new(42)
 	var spun := 0

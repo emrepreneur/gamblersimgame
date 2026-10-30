@@ -3,6 +3,7 @@ extends Node2D
 ## Tap the ground to walk (A* around buildings), tap a building to walk to its door and go in.
 
 const Character := preload("res://scripts/character.gd")
+const Night := preload("res://scripts/vegas_night.gd")
 
 const GRID := 12
 const HW := 66.0 # half tile width
@@ -43,6 +44,7 @@ var larry: Character
 var joey: Character
 var going_into := ""
 var hud: Label
+var signs := CanvasLayer.new() # neon signs move with the map but skip the night tint
 var panel: PanelContainer
 
 
@@ -66,6 +68,13 @@ func _ready() -> void:
 	astar.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_NEVER
 	astar.update()
 
+	Night.add_sky(self)
+	Night.add_night(self)
+	Night.add_desert(self, GRID, func(c): return top_corner(c))
+	signs.follow_viewport_enabled = true
+	add_child(signs)
+	var glows := Node2D.new() # unlit glow pools, under the signs
+	signs.add_child(glows)
 	var ground := Node2D.new()
 	add_child(ground)
 	var things := Node2D.new()
@@ -95,6 +104,15 @@ func _ready() -> void:
 
 	for id in PLACES:
 		_add_sign(id)
+		Night.add_light(glows, centre(_front_door(id)), Color(PLACES[id].sign), 1.0, 1.2)
+	Night.add_light(glows, centre(Vector2i(5, 3)), Color("#ff4fd8"), 1.0, 3.0) # casino wash
+	# Street lamps on sidewalks next to roads.
+	for x in GRID:
+		for y in GRID:
+			var c := Vector2i(x, y)
+			var by_road := (x + 1 in ROAD_X or y + 1 in ROAD_Y) and not (x in ROAD_X or y in ROAD_Y)
+			if by_road and not astar.is_point_solid(c) and (x + y) % 3 == 0:
+				Night.add_lamp(things, centre(c) + Vector2(0, 8))
 
 	larry = Character.new()
 	larry.setup("res://assets/characters/character-male-b.glb")
@@ -105,6 +123,7 @@ func _ready() -> void:
 	cam.position_smoothing_enabled = true
 	cam.zoom = Vector2.ONE * 0.8
 	larry.add_child(cam)
+	Night.add_light(larry, Vector2.ZERO, Color("#fff1d6"), 0.8, 0.6)
 
 	_build_ui()
 	if Game.is_over():
@@ -161,17 +180,19 @@ func _add_sign(id: String) -> void:
 	for pair in hit_sprites:
 		if pair[1] == id:
 			top = minf(top, pair[0].global_position.y)
-	var l := Label.new()
-	l.text = tr("PLACE_" + id)
 	var big: bool = id == "CASINO"
-	l.add_theme_font_size_override("font_size", 40 if big else 24)
-	l.add_theme_color_override("font_color", Color(PLACES[id].sign))
-	l.add_theme_color_override("font_outline_color", Color("#1b1420"))
-	l.add_theme_constant_override("outline_size", 12 if big else 9)
-	l.z_index = 10
-	add_child(l)
-	l.reset_size()
-	l.position = Vector2(sum.x / tiles.size() - l.size.x / 2.0, top - l.size.y - 4)
+	Night.add_neon(signs, tr("PLACE_" + id), Color(PLACES[id].sign), Vector2(sum.x / tiles.size(), top - (14 if big else 4)), 40 if big else 24, big)
+
+
+## For multi-tile places: the free neighbour closest to the viewer (largest x+y), so Larry isn't hidden.
+func _front_door(id: String) -> Vector2i:
+	var best := Vector2i(-1, -1)
+	for t in PLACES[id].tiles:
+		for d in [Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0), Vector2i(0, -1)]:
+			var n: Vector2i = t + d
+			if astar.is_in_boundsv(n) and not astar.is_point_solid(n) and (best.x < 0 or n.x + n.y > best.x + best.y):
+				best = n
+	return best
 
 
 ## Nearest walkable tile next to a building tile, preferring the road side.
@@ -208,7 +229,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			best_y = sp.get_parent().position.y
 	if best != "":
 		going_into = best
-		var door := _door(PLACES[best].tiles[0])
+		var door := _front_door(best)
 		larry.walk(_path_to(door))
 		return
 	var cell := cell_at(p)
