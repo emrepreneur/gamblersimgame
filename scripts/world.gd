@@ -127,6 +127,10 @@ func _ready() -> void:
 	Night.add_light(larry, Vector2.ZERO, Color("#fff1d6"), 0.8, 0.6)
 
 	_build_ui()
+	if Game.open_place != "" and not Game.is_over() and not Game.state.collection_due() and Game.state.event == "":
+		larry.position = centre(_front_door(Game.open_place)) # came by card: no walking
+		_open_place(Game.open_place)
+	Game.open_place = ""
 	if Game.is_over():
 		_open_place("MOTEL")
 	elif Game.state.collection_due():
@@ -308,6 +312,7 @@ func _build_ui() -> void:
 		get_tree().reload_current_scene())
 	lang.text = tr("BTN_LANGUAGE")
 	row.add_child(lang)
+	Game.make_button(row, tr("BTN_HOME"), func(): Game.hub = "home"; Game.go("home")).custom_minimum_size.y = 0
 
 	panel = PanelContainer.new()
 	panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
@@ -394,8 +399,16 @@ func _open_place(id: String) -> void:
 				_joey_buttons(box)
 				_show()
 				return
-		Game.make_button(box, tr("BTN_LEAVE"), func(): panel.visible = false)
+		Game.make_button(box, tr("BTN_LEAVE"), _close)
 	panel.visible = true
+
+
+func _close() -> void:
+	panel.visible = false
+	if Game.state.event != "": # Joey came first; the morning surprise is still waiting
+		_open_place("EVENT")
+	elif Game.hub == "home": # he came here by card, not on foot
+		Game.go("home")
 
 
 func _show() -> void:
@@ -448,8 +461,5 @@ func _result_only() -> void:
 	for e in Game.log.slice(-2):
 		lines.append(Game.entry_text(e))
 	Game.make_label(box, "\n\n".join(lines))
-	Game.make_button(box, tr("BTN_LEAVE"), func():
-		panel.visible = false
-		if Game.state.event != "": # Joey came first; the morning surprise is still waiting
-			_open_place("EVENT"))
+	Game.make_button(box, tr("BTN_LEAVE"), _close)
 	panel.visible = true

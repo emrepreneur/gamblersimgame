@@ -225,3 +225,33 @@ EV_ROACH_A,Search the walls,Duvarları ara
 EV_ROACH_B,Let him go,Bırak gitsin
 EV_ROACH_FOUND,"Found %s behind the fridge, eating a fry. Back in training.",%s buzdolabının arkasında patates kızartması yerken bulundu. Antrenmana dönüş.
 EV_ROACH_GONE,%s is gone. Larry pours one out.,%s gitti. Larry onun anısına bir yudum döküyor.
+BTN_HOME,Home,Ana ekran
+HOME_DAY,Day %d · Badges %d/%d,Gün %d · Rozet %d/%d
+HOME_CASH,CASH,NAKİT
+HOME_RENT,Rent,Kira
+HOME_DEBT,Owed to Vinnie,Vinnie'ye borç
+HOME_IN_DAYS,in %d days,%d gün sonra
+HOME_GOALS,WHAT'S NEXT,SIRADAKİ HEDEFLER
+HOME_LATEST,LATEST,SON OLAY
+HOME_CITY,THE TOWN,ŞEHİR
+GOAL_DEBT,Pay off Vinnie,Vinnie'ye borcu kapat
+GOAL_HOME,Move to: %s,Taşın: %s
+GOAL_DAYS,Survive %d days,%d gün hayatta kal
+GOAL_ROACH,Win 3 races with your own roach,Kendi hamamböceğinle 3 yarış kazan
+CARD_MOTEL,Home,Ev
+CARD_MOTEL_TAG,"Sleep, sulk, move up","Uyu, dertlen, taşın"
+CARD_DINER,Eat Here Diner,Eat Here Lokantası
+CARD_DINER_TAG,"Honest work, sadly","Dürüst iş, maalesef"
+CARD_CASINO,Golden Jackpot,Golden Jackpot
+CARD_CASINO_TAG,Roulette and blackjack,Rulet ve blackjack
+CARD_CASINO_LOCKED,Tiny says: blazer first,Tiny diyor ki: önce blazer
+CARD_BETS,Lucky Shot Bets,Lucky Shot Bahis
+CARD_BETS_TAG,Tonight's sure things,Bu akşamın kesin maçları
+CARD_DERBY,Roach Derby,Hamamböceği Derbisi
+CARD_DERBY_TAG,"Illegal, fast, crunchy","Kaçak, hızlı, çıtır"
+CARD_PAWN,Sal's Pawn,Sal'ın Rehincisi
+CARD_PAWN_TAG,"Sell it, miss it, buy it back","Sat, özle, geri al"
+CARD_VINNIE,Vinnie's Laundromat,Vinnie'nin Çamaşırhanesi
+CARD_VINNIE_TAG,Loans with a smile,Güler yüzlü borç
+CARD_MAP,City map,Şehir haritası
+CARD_MAP_TAG,Take a walk,Yürüyerek gez

@@ -87,7 +87,7 @@ func _ready() -> void:
 				chip = v
 				for k in chips.get_children(): k.queue_redraw())
 		chips.add_child(c)
-	Game.make_button(box, tr("BTN_BACK"), Game.go.bind("world"))
+	Game.make_button(box, tr("BTN_BACK"), Game.back)
 	_refresh()
 
 
@@ -109,7 +109,7 @@ func _refresh() -> void:
 			b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			b.custom_minimum_size.y = 70
 			b.add_theme_font_size_override("font_size", 22)
-			b.add_theme_color_override("font_color", TEAM_COLORS[m[0 if home else 1]].darkened(0.5))
+			b.add_theme_color_override("font_color", TEAM_COLORS[m[0 if home else 1]].lightened(0.6))
 			b.disabled = playing or s.money <= 0 or Game.is_over() or s.shadowed
 	if s.shadowed:
 		toast.text = tr("SHADOW_BOUNCER")

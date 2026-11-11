@@ -55,10 +55,10 @@ func _ready() -> void:
 	inner.add_child(row)
 	if Game.is_over():
 		Game.make_button(row, tr("BTN_RESTART"), func():
-			Game.new_game(); Game.larry_pos = Vector2.ZERO; Game.go("world")).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			Game.new_game(); Game.larry_pos = Vector2.ZERO; Game.back()).size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	else:
 		Game.make_button(row, tr("BTN_SLEEP"), _sleep).size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		Game.make_button(row, tr("BTN_BACK_SHORT"), Game.go.bind("world")).custom_minimum_size.x = 160
+		Game.make_button(row, tr("BTN_BACK_SHORT"), Game.back).custom_minimum_size.x = 160
 	_refresh()
 
 

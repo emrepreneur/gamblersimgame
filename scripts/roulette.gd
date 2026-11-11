@@ -20,7 +20,7 @@ var coins: CPUParticles2D
 
 func _ready() -> void:
 	var bg := ColorRect.new()
-	bg.color = Color("#2a1f3d")
+	bg.color = Color("#081421")
 	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(bg)
@@ -86,7 +86,7 @@ func _ready() -> void:
 	clear_btn = Game.make_button(row, tr("ROULETTE_CLEAR"), _clear)
 	spin_btn = Game.make_button(row, tr("ROULETTE_SPIN"), _spin)
 	spin_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var back := Game.make_button(row, tr("BTN_BACK_SHORT"), Game.go.bind("world"))
+	var back := Game.make_button(row, tr("BTN_BACK_SHORT"), Game.back)
 	for b in [clear_btn, back]:
 		b.custom_minimum_size.x = 150
 

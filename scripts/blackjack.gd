@@ -27,7 +27,7 @@ var sfx := {}
 
 func _ready() -> void:
 	var bg := ColorRect.new()
-	bg.color = Color("#2a1f3d")
+	bg.color = Color("#081421")
 	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(bg)
@@ -91,7 +91,7 @@ func _ready() -> void:
 	for b in [deal_btn, hit_btn, stand_btn, double_btn]:
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.add_theme_font_size_override("font_size", 26)
-	Game.make_button(box, tr("BTN_BACK_SHORT"), Game.go.bind("world"))
+	Game.make_button(box, tr("BTN_BACK_SHORT"), Game.back)
 	# A hand left open (e.g. app closed mid-hand) is shown as it was.
 	if not Game.state.bj.is_empty():
 		player = Game.state.bj.player.duplicate()
@@ -198,7 +198,7 @@ func _draw_table() -> void:
 	var sz := c.size
 	var font := get_theme_default_font()
 	# Casino wall and Dolores.
-	c.draw_rect(Rect2(Vector2.ZERO, sz), Color("#2a1f3d"))
+	c.draw_rect(Rect2(Vector2.ZERO, sz), Color("#081421"))
 	# Felt: a wide arc with a gold rail.
 	var centre := Vector2(sz.x / 2, -260)
 	c.draw_circle(centre, 1000, Color("#5a2e14"))

@@ -105,3 +105,9 @@ A week, 30 days, 100 days, first $1,000, sold everything, outran Joey, roach win
 ## Next
 
 The roach grows into a racehorse as Larry makes money (approved idea, not built yet).
+
+## Dashboard and visual system (Nov 2026)
+
+The game opens on a dashboard (`scenes/home.tscn`): Larry's portrait, cash, rent and debt, latest event, a card per place, and the next three goals. Cards enter places directly; the isometric map stays as the "City map" card for walking. Back buttons lead to `Game.hub` (dashboard, or the map while walking).
+
+Colours live in `scripts/game.gd`: navy #081421, charcoal #101820, casino green #116B50, gold #D7B46A, ivory #F4EEDF, burgundy #8D3045. All art is drawn in code in one flat style.

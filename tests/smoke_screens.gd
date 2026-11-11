@@ -10,12 +10,13 @@ func _init() -> void:
 	await process_frame
 	var game = root.get_node("Game")
 	game.new_game()
-	for scene in ["world", "sports", "roulette", "race", "motel", "blackjack", "world"]:
+	for scene in ["home", "world", "sports", "roulette", "race", "motel", "blackjack", "world"]:
 		change_scene_to_file("res://scenes/%s.tscn" % scene)
 		await process_frame
 		await process_frame
 		print("opened ", scene, " buttons=", buttons().size())
 
+	game.hub = "world" # stay on the map: Leave must not bounce back to the dashboard
 	# Joey shows up on load when a loan is due; press buttons until he's gone.
 	for round in 3:
 		game.new_game()
@@ -30,7 +31,7 @@ func _init() -> void:
 				break
 		var pressed := []
 		for i in 6:
-			var bs := buttons().filter(func(b): return b.text != "English" and b.text != "Türkçe")
+			var bs := buttons().filter(func(b): return b.text != "English" and b.text != "Türkçe" and b.text != "Home")
 			if bs.is_empty() or not game.state.collection_due():
 				break
 			var b: Button = bs[(round + i) % bs.size()]

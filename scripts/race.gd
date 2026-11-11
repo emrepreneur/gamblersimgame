@@ -98,7 +98,7 @@ func _ready() -> void:
 	clear_btn = Game.make_button(row, tr("ROULETTE_CLEAR"), func(): bets.clear(); _refresh())
 	race_btn = Game.make_button(row, tr("RACE_GO"), _race)
 	race_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	Game.make_button(row, tr("BTN_BACK_SHORT"), Game.go.bind("world")).custom_minimum_size.x = 140
+	Game.make_button(row, tr("BTN_BACK_SHORT"), Game.back).custom_minimum_size.x = 140
 	clear_btn.custom_minimum_size.x = 160
 	_refresh()
 
@@ -127,7 +127,7 @@ func _refresh() -> void:
 		b.add_theme_font_size_override("font_size", 24)
 		var stake := "   +$%d" % bets[i] if bets.has(i) else ""
 		b.text = tr("RACE_ROW") % [i + 1, r[0] + (tr("ROACH_YOURS") if own else ""), r[1], s.roach_odds(chance)] + stake
-		b.add_theme_color_override("font_color", LANE_COLORS[i].darkened(0.45))
+		b.add_theme_color_override("font_color", LANE_COLORS[i].lightened(0.6))
 		b.disabled = running
 		b.pressed.connect(_bet.bind(i))
 		card.add_child(b)
