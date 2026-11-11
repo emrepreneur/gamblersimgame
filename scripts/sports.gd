@@ -12,6 +12,7 @@ var hud: Label
 var toast: Label
 var list: VBoxContainer
 var chip := 10
+var stake := 10 # tapping the same chip again stacks it: 100, 200, 300...
 var t := 0.0
 var playing := false
 var pending := 0 # winnings already in the state but not revealed yet
@@ -84,7 +85,10 @@ func _ready() -> void:
 			Table.draw_chip(c, Vector2(38, 35 if v != chip else 30), 30, v))
 		c.gui_input.connect(func(e):
 			if e is InputEventMouseButton and e.pressed:
+				stake = mini(stake + v if v == chip else v, maxi(Game.state.money, v))
 				chip = v
+				sfx["chips-collide-1"].play()
+				hud.text = tr("SPORT_HUD") % [Game.state.day, Game.state.money - pending, Game.state.debt] + "   " + tr("STAKE_NOW") % stake
 				for k in chips.get_children(): k.queue_redraw())
 		chips.add_child(c)
 	Game.make_button(box, tr("BTN_BACK"), Game.back)
@@ -93,7 +97,7 @@ func _ready() -> void:
 
 func _refresh() -> void:
 	var s = Game.state
-	hud.text = tr("SPORT_HUD") % [s.day, s.money - pending, s.debt]
+	hud.text = tr("SPORT_HUD") % [s.day, s.money - pending, s.debt] + "   " + tr("STAKE_NOW") % mini(stake, maxi(s.money, 0))
 	for c in list.get_children():
 		c.queue_free()
 	if s.matches.is_empty():
@@ -118,7 +122,7 @@ func _refresh() -> void:
 func _bet(index: int, home: bool) -> void:
 	var s = Game.state
 	var m: Array = s.matches[index]
-	var amount := mini(chip, s.money)
+	var amount := mini(stake, s.money)
 	var result: Dictionary = s.bet_match(index, home, amount)
 	if result.is_empty():
 		return

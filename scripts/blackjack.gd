@@ -10,6 +10,7 @@ var felt: Control
 var hud: Label
 var toast: Label
 var chip := 10
+var stake := 10 # tapping the same chip again stacks it: 100, 200, 300...
 var player: Array = [] # cards shown on the table
 var dealer: Array = []
 var hide_hole := false
@@ -76,8 +77,10 @@ func _ready() -> void:
 			Table.draw_chip(c, Vector2(42, 40 if v != chip else 34), 34, v))
 		c.gui_input.connect(func(e):
 			if e is InputEventMouseButton and e.pressed and not busy and Game.state.bj.is_empty():
+				stake = mini(stake + v if v == chip else v, maxi(Game.state.money, v))
 				chip = v
 				sfx["chips-collide-1"].play()
+				_refresh()
 				for k in chip_row.get_children(): k.queue_redraw())
 		chip_row.add_child(c)
 
@@ -102,7 +105,7 @@ func _ready() -> void:
 
 func _refresh() -> void:
 	var s = Game.state
-	var bet: int = s.bj.get("bet", 0)
+	var bet: int = s.bj.get("bet", mini(stake, s.money)) # before the deal: what he's about to put down
 	hud.text = tr("ROULETTE_HUD") % [s.money - pending, bet]
 	var in_hand: bool = not s.bj.is_empty()
 	deal_btn.disabled = busy or in_hand or s.money <= 0 or s.shadowed
@@ -130,7 +133,7 @@ func _id(card: Array) -> String:
 
 func _deal() -> void:
 	var s = Game.state
-	var amount := mini(chip, s.money)
+	var amount := mini(stake, s.money)
 	var r: Dictionary = s.bj_deal(amount)
 	if r.is_empty():
 		return
