@@ -5,7 +5,7 @@ Kiraya %d gün kaldı"
 INTRO,"Meet Lucky Larry. A motel room off the Strip, $100, and a gut feeling that never once was right.","Bu Lucky Larry. Strip'in arkasında bir motel odası, 100 doları ve bugüne kadar hiç tutmamış bir içgüdüsü var."
 BTN_SPORTS,Sports betting,Spor bahisleri
 BTN_ROULETTE,Roulette,Rulet
-BTN_WORK,Wash dishes ($%d),Bulaşık yıka ($%d)
+BTN_WORK,Work a shift: %s ($%d),Vardiyaya gir: %s ($%d)
 BTN_SELL,Sell %s ($%d),%s sat ($%d)
 BTN_BORROW,Borrow $%d from Vinnie,Vinnie'den $%d al
 BTN_REPAY,Pay back Vinnie,Vinnie'ye borcunu öde
@@ -20,7 +20,7 @@ ITEM_GUITAR,the guitar,gitar
 ITEM_TV,the TV,televizyon
 ITEM_WATCH,grandpa's watch,dedesinin saati
 ITEM_CAR,the car,araba
-WORK,"Washed dishes all night for $%d. Smells like ketchup now.","Bütün gece bulaşık yıkadı, $%d aldı. Artık ketçap kokuyor."
+WORK_0,"Washed dishes all night for $%d. Smells like ketchup now.","Bütün gece bulaşık yıkadı, $%d aldı. Artık ketçap kokuyor."
 SELL_ITEM_IRON,"Sold the iron for $%d. Wrinkles are a look.","Ütüyü $%d'a sattı. Kırışık da bir tarz."
 SELL_ITEM_MICROWAVE,"Sold the microwave for $%d. Cold pizza is still pizza.","Mikrodalgayı $%d'a sattı. Soğuk pizza da pizzadır."
 SELL_ITEM_GUITAR,"Sold the guitar for $%d. He only knew one song anyway.","Gitarı $%d'a sattı. Zaten tek şarkı biliyordu."
@@ -255,3 +255,20 @@ CARD_VINNIE,Vinnie's Laundromat,Vinnie'nin Çamaşırhanesi
 CARD_VINNIE_TAG,Loans with a smile,Güler yüzlü borç
 CARD_MAP,City map,Şehir haritası
 CARD_MAP_TAG,Take a walk,Yürüyerek gez
+WORK_1,Waited tables for $%d. Smiled at forty strangers. Meant it twice.,"Garsonluk yaptı, $%d aldı. Kırk yabancıya gülümsedi. İkisinde içtendi."
+WORK_2,Dealt cards for $%d. Watched other people lose for a change. It's nice.,"Kart dağıttı, $%d aldı. Bu sefer kaybedenleri izledi. İyi geliyormuş."
+WORK_3,Ran the pit for $%d. Larry now throws out guys who look exactly like Larry.,"Masaları yönetti, $%d aldı. Larry artık tıpkı Larry'ye benzeyen adamları kapı dışarı ediyor."
+WORK_MESS,"Hands shaking, Larry dropped a full tray. Half pay: $%d. He needs a rest.",Elleri titreyen Larry dolu tepsiyi düşürdü. Yarım yevmiye: $%d. Dinlenmesi lazım.
+PROMOTED,"$%d for the shift, and news: Larry is now a %s. $%d a shift. His mother will hear about this.",Vardiyadan $%d aldı ve haber var: Larry artık %s. Vardiyası $%d. Annesi bunu duyacak.
+JOB_DISH,Dishwasher,Bulaşıkçı
+JOB_WAITER,Waiter,Garson
+JOB_DEALER,Casino dealer,Krupiye
+JOB_PIT,Pit boss,Kat şefi
+BTN_MEAL,Eat a proper meal ($%d),Adam gibi bir yemek ye ($%d)
+MEAL,A real meal for $%d. With a vegetable. Larry feels almost like a person.,$%d'a gerçek bir yemek. Yanında sebze bile var. Larry kendini neredeyse insan gibi hissediyor.
+CLINIC,Larry's eye won't stop twitching. The walk-in clinic takes $%d and tells him to 'avoid stress'.,"Larry'nin gözü seğirmeyi bırakmıyor. Klinik $%d alıp ona ""stresten uzak durmasını"" söylüyor."
+PROMO_SHIFTS,Next job: %s (%d/%d shifts),Sıradaki iş: %s (%d/%d vardiya)
+PROMO_OUTFIT,Next job: %s. The boss says: not dressed like that.,Sıradaki iş: %s. Patron diyor ki: bu kılıkla olmaz.
+HOME_STRESS,Stress,Stres
+HOME_REP,Reputation,İtibar
+GOAL_JOB,Promotion: %s,Terfi: %s

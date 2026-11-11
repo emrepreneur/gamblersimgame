@@ -41,7 +41,7 @@ func _ready() -> void:
 	who.alignment = BoxContainer.ALIGNMENT_CENTER
 	id_row.add_child(who)
 	_text(who, "Lucky Larry", 44)
-	_text(who, tr(s.HOMES[s.home][0]), 26, Game.GOLD)
+	_text(who, "%s · %s" % [tr(s.JOBS[s.job][0]), tr(s.HOMES[s.home][0])], 24, Game.GOLD)
 	_text(who, tr("HOME_DAY") % [s.day, s.badges.size(), 8], 24, Color(Game.IVORY, 0.7))
 	var lang := Game.make_button(id_row, tr("BTN_LANGUAGE"), func():
 		TranslationServer.set_locale("en" if TranslationServer.get_locale().begins_with("tr") else "tr")
@@ -68,6 +68,13 @@ func _ready() -> void:
 	_fact(facts, tr("HOME_RENT"), "$%d · %s" % [s.rent(), tr("HOME_IN_DAYS") % s.days_to_rent()])
 	_fact(facts, tr("HOME_DEBT"), "$%s" % _commas(s.debt) + ("" if s.debt == 0 else " · " + tr("HOME_IN_DAYS") % maxi(s.due_day - s.day, 0)),
 		Game.IVORY if s.debt == 0 else Color("#e88a9a"))
+
+	# How he's holding up.
+	var life := HBoxContainer.new()
+	life.add_theme_constant_override("separation", 24)
+	_card(box).add_child(life)
+	_meter(life, tr("HOME_STRESS"), s.stress, Color("#e88a9a") if s.stress >= 70 else Game.GOLD)
+	_meter(life, tr("HOME_REP"), s.rep, Game.GOLD)
 
 	# What just happened.
 	var news := VBoxContainer.new()
@@ -112,6 +119,9 @@ func _goals() -> Array: # [text, progress, target, "x / y"]
 	if s.next_home_price() > 0:
 		var p: int = s.next_home_price()
 		out.append([tr("GOAL_HOME") % tr(s.HOMES[s.home + 1][0]), s.money, p, "$%s / $%s" % [_commas(mini(s.money, p)), _commas(p)]])
+	if s.JOBS[s.job][2] > 0:
+		var need: int = s.JOBS[s.job][2]
+		out.append([tr("GOAL_JOB") % tr(s.JOBS[s.job + 1][0]), s.shifts, need, "%d / %d" % [mini(s.shifts, need), need]])
 	for d in [7, 30, 100]:
 		if s.day < d:
 			out.append([tr("GOAL_DAYS") % d, s.day, d, "%d / %d" % [s.day, d]])
@@ -183,6 +193,25 @@ func _text(parent: Container, text: String, size: int, color := Game.IVORY) -> L
 	l.add_theme_color_override("font_color", color)
 	parent.add_child(l)
 	return l
+
+
+func _meter(row: Container, title: String, value: int, color: Color) -> void:
+	var col := VBoxContainer.new()
+	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(col)
+	var top := HBoxContainer.new()
+	col.add_child(top)
+	_text(top, title, 20, Color(Game.IVORY, 0.7)).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_text(top, str(value), 22).autowrap_mode = TextServer.AUTOWRAP_OFF
+	var bar := ProgressBar.new()
+	bar.show_percentage = false
+	bar.custom_minimum_size.y = 12
+	bar.value = value
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = color
+	fill.set_corner_radius_all(8)
+	bar.add_theme_stylebox_override("fill", fill)
+	col.add_child(bar)
 
 
 func _fact(row: Container, title: String, value: String, color := Game.IVORY) -> void:

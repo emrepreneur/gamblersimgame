@@ -4,7 +4,6 @@ extends RefCounted
 const FOOD_COST := 20
 const RENT := 200
 const RENT_EVERY := 7
-const WORK_PAY := 60
 const TEAMS := 8
 const RED := [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]
 
@@ -24,6 +23,10 @@ const ITEMS := [
 	["ITEM_BLAZER", 40], ["ITEM_SUIT", 200], # not owned at start; bought from Sal's rack
 ]
 const START_ITEMS := 6
+# Career at the Eat Here Diner and then the casino floor: [key, pay per shift, shifts to the next job, outfit needed].
+const JOBS := [["JOB_DISH", 60, 5, 0], ["JOB_WAITER", 90, 10, 0], ["JOB_DEALER", 150, 20, 1], ["JOB_PIT", 250, 0, 2]]
+const MEAL_COST := 15
+const CLINIC_COST := 50
 # Homes: [key, price to move in, weekly rent]. Can't pay rent: drop one level (eviction only from the motel).
 const HOMES := [["HOME_MOTEL", 0, 200], ["HOME_FLAT", 1000, 350], ["HOME_SUITE", 5000, 800], ["HOME_RANCH", 25000, 1500]]
 const LOAN_PER_HOME := 200 # Vinnie lends more to a man with an address
@@ -50,6 +53,10 @@ var used_mom := false # the hospital excuse only works once
 var negotiated := false # one negotiation per deadline
 var offer: Array = [] # Vinnie's current [days, pct], empty when none
 var shadowed := false # Joey follows Larry; no casino, no betting shop
+var stress := 20 # 0..100; losing, debt and work push it up, sleep and a decent meal bring it down
+var job := 0 # index into JOBS
+var shifts := 0 # shifts worked in the current job
+var ate_day := 0 # day of the last proper meal
 var home := 0 # index into HOMES
 var badges: Array = [] # earned badge keys
 var event := "" # morning event waiting for Larry's choice
@@ -76,8 +83,50 @@ func work() -> Dictionary:
 	if worked_today or is_over():
 		return {}
 	worked_today = true
-	money += WORK_PAY
-	return {"key": "WORK", "args": [WORK_PAY]}
+	_stress(6)
+	var pay := work_pay()
+	if stress >= 80 and rng.randf() < 0.3: # too frazzled to carry a tray
+		pay /= 2
+		money += pay
+		return {"key": "WORK_MESS", "args": [pay]}
+	money += pay
+	shifts += 1
+	var need: int = JOBS[job][2]
+	if need > 0 and shifts >= need and outfit() >= JOBS[job + 1][3]:
+		job += 1
+		shifts = 0
+		rep = mini(rep + 5, 100)
+		return {"key": "PROMOTED", "args": [pay, JOBS[job][0], JOBS[job][1]]}
+	return {"key": "WORK_%d" % job, "args": [pay]}
+
+
+func work_pay() -> int:
+	return JOBS[job][1]
+
+
+## What stands between Larry and the next job: "" (nothing), "shifts" or "outfit".
+func promotion_block() -> String:
+	if JOBS[job][2] == 0:
+		return ""
+	return "shifts" if shifts < JOBS[job][2] else ("outfit" if outfit() < JOBS[job + 1][3] else "")
+
+
+func eat_meal() -> Dictionary:
+	if ate_day == day or money < MEAL_COST or is_over():
+		return {}
+	ate_day = day
+	money -= MEAL_COST
+	_stress(-12)
+	return {"key": "MEAL", "args": [MEAL_COST]}
+
+
+func _stress(delta: int) -> void:
+	stress = clampi(stress + delta, 0, 100)
+
+
+## Gambling moves the nerves: a loss stings more than a win soothes.
+func _felt(won: bool) -> void:
+	_stress(-3 if won else 5)
 
 
 static func item_value(key: String) -> int:
@@ -162,12 +211,19 @@ func sleep() -> Array:
 	if collection_due():
 		log.append(_miss()) # going to bed instead of facing Joey counts as missing him
 	money = maxi(money - FOOD_COST, 0)
+	_stress(-15 + (5 if debt > 0 else 0) + home * -2) # debt keeps him up; a better bed helps
+	if stress >= 100: # the body files a complaint
+		var fee := mini(money, CLINIC_COST)
+		money -= fee
+		stress = 60
+		log.append({"key": "CLINIC", "args": [fee]})
 	if days_to_rent() == 1:
 		if money < rent():
 			if home == 0:
 				evicted = true
 				return log + [{"key": "END_EVICTED", "args": []}]
 			home -= 1
+			_stress(20)
 			log.append({"key": "HOME_DOWN", "args": [HOMES[home][0]]})
 		else:
 			money -= rent()
@@ -445,6 +501,7 @@ func accept_offer() -> Dictionary:
 func _miss() -> Dictionary:
 	step = mini(step + 1, LAST_STEP)
 	rep = maxi(rep - 10, 0)
+	_stress(15)
 	due_day = day + GRACE_DAYS
 	offer = []
 	match step:
@@ -510,7 +567,9 @@ func bet_match(index: int, home: bool, amount: int) -> Dictionary:
 	if rng.randf() < chance:
 		var win := int(amount * odds(chance))
 		money += win
+		_felt(true)
 		return {"key": "SPORT_WIN", "args": [win]}
+	_felt(false)
 	return {"key": "SPORT_LOSE_%d" % rng.randi_range(1, 2), "args": [amount]}
 
 
@@ -599,6 +658,8 @@ func run_race(bets: Dictionary) -> Dictionary:
 			out.purse = PURSE + roach.speed * 10
 			roach.wins = roach.get("wins", 0) + 1
 		money += out.win + out.purse
+	if staked > 0 or out.raid:
+		_felt(out.win > staked)
 	_new_field()
 	return out
 
@@ -737,6 +798,8 @@ func _bj_settle() -> Dictionary:
 	else:
 		key = "BJ_LOSE"
 	money += paid
+	if paid != bet:
+		_felt(paid > bet)
 	var out := {"key": key, "args": [p, d, paid if paid > bet else bet], "player": bj.player, "dealer": bj.dealer, "paid": paid}
 	bj = {}
 	return out
@@ -763,6 +826,7 @@ func spin_roulette_bets(bets: Dictionary) -> Dictionary:
 	for b in bets:
 		win += bets[b] * roulette_payout(b, n)
 	money += win
+	_felt(win > staked)
 	return {"number": n, "win": win, "staked": staked}
 
 
@@ -780,7 +844,7 @@ static func roulette_payout(bet: String, n: int) -> int:
 
 const SAVED := ["field", "roach", "day", "money", "debt", "owned", "taken", "shelf", "worked_today", "evicted", "matches",
 	"due_day", "step", "rep", "used_mom", "negotiated", "offer", "shadowed",
-	"home", "badges", "event", "event_arg", "escaped_joey"]
+	"stress", "job", "shifts", "ate_day", "home", "badges", "event", "event_arg", "escaped_joey"]
 
 
 func to_dict() -> Dictionary:
@@ -795,7 +859,7 @@ func from_dict(d: Dictionary) -> void:
 		if d.has(k):
 			set(k, d[k])
 	# JSON turns ints into floats
-	for k in ["day", "money", "debt", "due_day", "step", "rep", "home", "event_arg"]:
+	for k in ["day", "money", "debt", "due_day", "step", "rep", "home", "event_arg", "stress", "job", "shifts", "ate_day"]:
 		set(k, int(get(k)))
 	offer = offer.map(func(v): return int(v))
 	field = field.map(func(r): return [r[0], int(r[1])])

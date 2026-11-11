@@ -212,6 +212,28 @@ func _init() -> void:
 	hm_s.money = 2000
 	check(hm_s.check_badges().any(func(r): return r.args[0] == "BADGE_GRAND"), "badge earned")
 	check(hm_s.check_badges().is_empty(), "badge not twice")
+	# Career: five shifts washing dishes make a waiter; the dealer job needs a blazer.
+	var cs := GameState.new(5)
+	for i in 5:
+		cs.worked_today = false
+		cs.stress = 0
+		cs.work()
+	check(cs.job == 1 and cs.shifts == 0 and cs.work_pay() == 90, "promoted to waiter")
+	cs.shifts = 10
+	check(cs.promotion_block() == "outfit", "dealer needs a blazer")
+	# Stress: gambling losses raise it, a meal lowers it once a day, 100 means the clinic.
+	cs.stress = 50
+	cs._felt(false)
+	check(cs.stress == 55, "loss adds stress")
+	cs.money = 100
+	check(not cs.eat_meal().is_empty() and cs.stress == 43 and cs.eat_meal().is_empty(), "one meal a day")
+	cs.stress = 130
+	cs.stress = 115
+	var cl: Array = cs.sleep()
+	check(cs.stress == 60 and cl.any(func(r): return r.key == "CLINIC"), "clinic at breaking point")
+	for k in ["JOB_DISH", "JOB_WAITER", "JOB_DEALER", "JOB_PIT", "BTN_MEAL", "PROMO_SHIFTS", "PROMO_OUTFIT", "HOME_STRESS", "HOME_REP", "GOAL_JOB"]:
+		check(csv_has(k), "missing " + k)
+
 	# Every morning event resolves on both choices.
 	for ev in GameState.EVENTS:
 		for choice in 2:
@@ -233,7 +255,7 @@ func _init() -> void:
 
 	# Every key the code can emit must exist in the CSV.
 	var csv := FileAccess.get_file_as_string("res://i18n/strings.csv")
-	var keys := ["INTRO", "STATS", "WORK", "BORROW", "REPAY", "RENT_PAID", "EVENT_QUIET", "EVENT_LUCKY_DREAM",
+	var keys := ["INTRO", "STATS", "WORK_0", "WORK_1", "WORK_2", "WORK_3", "BORROW", "REPAY", "RENT_PAID", "EVENT_QUIET", "EVENT_LUCKY_DREAM",
 		"EVENT_FOUND_CHIP", "END_EVICTED", "SPORT_WIN", "SPORT_LOSE_1",
 		"SPORT_LOSE_2", "SPORT_NO_MATCHES", "SPIN_WIN", "SPIN_LOSE"]
 	# Every key literal in the rules file.

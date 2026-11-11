@@ -352,7 +352,12 @@ func _open_place(id: String) -> void:
 			"MOTEL":
 				Game.make_button(box, tr("BTN_SLEEP"), _act.bind(id, s.sleep))
 			"DINER":
-				Game.make_button(box, tr("BTN_WORK") % s.WORK_PAY, _act.bind(id, s.work)).disabled = s.worked_today
+				Game.make_button(box, tr("BTN_WORK") % [tr(s.JOBS[s.job][0]), s.work_pay()], _act.bind(id, s.work)).disabled = s.worked_today
+				Game.make_button(box, tr("BTN_MEAL") % s.MEAL_COST, _act.bind(id, s.eat_meal)).disabled = s.ate_day == s.day or s.money < s.MEAL_COST
+				var block: String = s.promotion_block()
+				if s.JOBS[s.job][2] > 0:
+					Game.make_label(box, tr("PROMO_OUTFIT") % tr(s.JOBS[s.job + 1][0]) if block == "outfit"
+						else tr("PROMO_SHIFTS") % [tr(s.JOBS[s.job + 1][0]), s.shifts, s.JOBS[s.job][2]])
 			"PAWN":
 				var grid := GridContainer.new()
 				grid.columns = 2

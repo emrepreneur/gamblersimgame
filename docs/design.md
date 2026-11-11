@@ -111,3 +111,11 @@ The roach grows into a racehorse as Larry makes money (approved idea, not built 
 The game opens on a dashboard (`scenes/home.tscn`): Larry's portrait, cash, rent and debt, latest event, a card per place, and the next three goals. Cards enter places directly; the isometric map stays as the "City map" card for walking. Back buttons lead to `Game.hub` (dashboard, or the map while walking).
 
 Colours live in `scripts/game.gd`: navy #081421, charcoal #101820, casino green #116B50, gold #D7B46A, ivory #F4EEDF, burgundy #8D3045. All art is drawn in code in one flat style.
+
+## Stress, reputation and career (Nov 2026)
+
+No action limit per day (decided: free play first, restrict later if needed). Stress is the soft brake instead.
+
+- **Stress 0..100.** Up: a lost bet +5, a shift +6, missing Joey +15, losing a home +20, sleeping in debt +5. Down: a won bet -3, sleep -15 (better homes help), one proper meal a day at the diner ($15) -12. At 80+ a shift can go wrong (half pay). At 100 the clinic takes $50 overnight.
+- **Reputation** is the old Vinnie `rep`, now shown on the dashboard. Promotions add to it.
+- **Career.** Dishwasher $60, waiter $90 (after 5 shifts), casino dealer $150 (10 more, needs a blazer), pit boss $250 (20 more, needs a suit). One shift a day.
