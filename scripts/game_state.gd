@@ -33,6 +33,8 @@ const LOAN_PER_HOME := 200 # Vinnie lends more to a man with an address
 const EVENT_PCT := 40
 const EVENTS := ["EV_EARL", "EV_TIP", "EV_MOM", "EV_PARCEL", "EV_EX", "EV_SAL", "EV_MEETING", "EV_ROACH"]
 const OUTFITS := {"ITEM_BLAZER": 80, "ITEM_SUIT": 400} # Sal's rack prices
+const PokerTable := preload("res://scripts/poker_table.gd")
+const POKER_BUYIN := 100 # the everyday table; the $1,000 five-card room comes later
 const CASINO_OUTFIT := 1 # blazer or better to get past Tiny
 
 var rng := RandomNumberGenerator.new()
@@ -710,6 +712,55 @@ func enter_roach() -> Dictionary:
 # --- Blackjack (casino) ----------------------------------------------------
 # Cards are [rank 1..13, suit 0..3]. Dealer stands on all 17s, blackjack pays 3:2, one deck reshuffled per hand.
 
+var pk_stack := 0 # Larry's chips on the poker table. Saved, so closing the app mid-session doesn't eat them.
+var table: PokerTable = null # shortcut: the hand in play isn't saved; chips already in the pot are lost on reload
+
+
+func pk_sit() -> Dictionary:
+	if pk_stack > 0 or money < POKER_BUYIN or outfit() < CASINO_OUTFIT or is_over() or shadowed:
+		return {}
+	money -= POKER_BUYIN
+	pk_stack = POKER_BUYIN
+	return {"key": "PK_SIT", "args": [POKER_BUYIN]}
+
+
+func pk_table() -> PokerTable:
+	if table == null:
+		table = PokerTable.new(rng)
+		table.stacks[0] = pk_stack
+	return table
+
+
+func pk_deal() -> bool:
+	if pk_stack <= 0 or not pk_table().start_hand():
+		return false
+	pk_stack = table.stacks[0]
+	return true
+
+
+## action: "fold", "call", "raise" or "allin". Returns the hand's result once it is over, else {}.
+func pk_act(action: String) -> Dictionary:
+	if table == null or not table.in_hand:
+		return {}
+	table.larry(action)
+	pk_stack = table.stacks[0]
+	if table.in_hand:
+		return {}
+	if table.result.net != 0:
+		_felt(table.result.net > 0)
+	return table.result
+
+
+func pk_leave() -> Dictionary:
+	if (pk_stack <= 0 and table == null) or (table != null and table.in_hand): # finish the hand first
+		return {}
+	var out := {"key": "PK_LEAVE" if pk_stack > 0 else "PK_BUST", "args": [pk_stack] if pk_stack > 0 else []}
+	money += pk_stack
+	pk_stack = 0
+	table = null
+	return out
+
+
 var bj := {} # {bet, player: [cards], dealer: [cards], deck: [cards]}; empty = no hand in play
 
 
@@ -848,7 +899,7 @@ static func roulette_payout(bet: String, n: int) -> int:
 
 const SAVED := ["field", "roach", "day", "money", "debt", "owned", "taken", "shelf", "worked_today", "evicted", "matches",
 	"due_day", "step", "rep", "used_mom", "negotiated", "offer", "shadowed",
-	"stress", "job", "shifts", "ate_day", "home", "badges", "event", "event_arg", "escaped_joey"]
+	"stress", "job", "shifts", "ate_day", "pk_stack", "home", "badges", "event", "event_arg", "escaped_joey"]
 
 
 func to_dict() -> Dictionary:
@@ -863,7 +914,7 @@ func from_dict(d: Dictionary) -> void:
 		if d.has(k):
 			set(k, d[k])
 	# JSON turns ints into floats
-	for k in ["day", "money", "debt", "due_day", "step", "rep", "home", "event_arg", "stress", "job", "shifts", "ate_day"]:
+	for k in ["day", "money", "debt", "due_day", "step", "rep", "home", "event_arg", "stress", "job", "shifts", "ate_day", "pk_stack"]:
 		set(k, int(get(k)))
 	offer = offer.map(func(v): return int(v))
 	field = field.map(func(r): return [r[0], int(r[1])])

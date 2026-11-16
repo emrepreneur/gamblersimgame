@@ -243,7 +243,7 @@ CARD_MOTEL_TAG,"Sleep, sulk, move up","Uyu, dertlen, taşın"
 CARD_DINER,Eat Here Diner,Eat Here Lokantası
 CARD_DINER_TAG,"Honest work, sadly","Dürüst iş, maalesef"
 CARD_CASINO,Golden Jackpot,Golden Jackpot
-CARD_CASINO_TAG,Roulette and blackjack,Rulet ve blackjack
+CARD_CASINO_TAG,"Roulette, blackjack, poker","Rulet, blackjack, poker"
 CARD_CASINO_LOCKED,Tiny says: blazer first,Tiny diyor ki: önce blazer
 CARD_BETS,Lucky Shot Bets,Lucky Shot Bahis
 CARD_BETS_TAG,Tonight's sure things,Bu akşamın kesin maçları
@@ -273,3 +273,43 @@ HOME_STRESS,Stress,Stres
 HOME_REP,Reputation,İtibar
 GOAL_JOB,Promotion: %s,Terfi: %s
 STAKE_NOW,Bet: $%d,Bahis: $%d
+BTN_POKER,Poker: Hold'em ($%d buy-in),Poker: Hold'em (giriş $%d)
+PK_SIT,Larry buys in for $%d and sits down. Three regulars look up like wolves hearing a can opener.,"Larry $%d'lık fişle masaya oturuyor. Üç müdavim, konserve açacağı duymuş kurtlar gibi başını kaldırıyor."
+PK_LEAVE,Larry cashes out $%d and leaves the table with his shirt still on.,Larry $%d'ı bozdurup masadan kalkıyor. Gömleği hâlâ üstünde.
+PK_BUST,"Larry is out of chips. Grandma Ruth pats his hand. 'Next time, dear.'","Larry'nin fişi bitti. Ruth Nine elini okşuyor: ""Bir dahaki sefere yavrum."""
+PK_WON,"Larry wins $%d with %s. He stacks the chips slowly, so everyone can watch.","Larry $%d kazanıyor, elinde %s var. Fişleri herkes görsün diye yavaş yavaş diziyor."
+PK_STOLE,Everyone folds. Larry takes $%d and tries not to look surprised.,Herkes pas geçiyor. Larry $%d alıyor ve şaşırmamış gibi yapıyor.
+PK_LOST,%s takes it with %s. Larry is down $%d.,"%s, %s ile potu alıyor. Larry $%d içeride."
+PK_SPLIT,"Split pot. Larry gets his $%d back, minus the house's cut and his hopes.",Pot bölüşüldü. Larry $%d geri alıyor. Kasanın payı ve umutları hariç.
+PK_FOLDED,Larry folds. $%d stays on the table.,Larry pas geçiyor. $%d masada kalıyor.
+PK_FOLDED_FREE,Larry folds for free. The smartest thing he's done all week.,Larry bedavaya pas geçiyor. Bu hafta yaptığı en akıllıca şey.
+PK_SUE,Big Sue,Koca Sue
+PK_REV,Reverend Al,Peder Al
+PK_RUTH,Grandma Ruth,Ruth Nine
+PK_YOU,Larry,Larry
+PK_ACT_fold,%s folds.,%s pas geçti.
+PK_ACT_check,%s checks.,%s bekliyor.
+PK_ACT_call,%s calls.,%s gördü.
+PK_ACT_raise,%s raises to $%d.,%s artırdı: $%d.
+PK_ACT_allin,%s is all in for $%d!,%s her şeyini koydu: $%d!
+PK_TELL,He tugs at his collar.,Yakasını çekiştiriyor.
+PK_HAND_0,high card,yüksek kart
+PK_HAND_1,a pair,per
+PK_HAND_2,two pair,döper
+PK_HAND_3,three of a kind,üçlü
+PK_HAND_4,a straight,kent
+PK_HAND_5,a flush,floş
+PK_HAND_6,a full house,ful
+PK_HAND_7,four of a kind,kare
+PK_HAND_8,a straight flush,floş kent
+PK_SIT_BTN,Sit down ($%d),Masaya otur ($%d)
+PK_DEAL,Deal,Dağıt
+PK_FOLD_BTN,Fold,Pas
+PK_CHECK_BTN,Check,Bekle
+PK_CALL_BTN,Call $%d,Gör $%d
+PK_RAISE_BTN,Raise $%d,Artır $%d
+PK_ALLIN_BTN,All in,Hepsi
+PK_LEAVE_BTN,Cash out,Kalk
+PK_HUD,Cash: $%d   Chips: $%d,Nakit: $%d   Fiş: $%d
+PK_POT,Pot $%d,Pot $%d
+PK_WELCOME,"The back table. Blinds $1/$2, the house takes 5% of every pot. Watch the Reverend's collar.","Arka masa. Körler $1/$2, kasa her pottan %5 alır. Peder'in yakasına dikkat et."

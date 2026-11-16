@@ -120,3 +120,11 @@ No action limit per day (decided: free play first, restrict later if needed). St
 - **Reputation** is the old Vinnie `rep`, now shown on the dashboard. Promotions add to it.
 - **Roach training** has no cap and no daily limit: each level costs $20 x current speed, and the purse is $120 + $20 x speed.
 - **Career.** Dishwasher $60, waiter $90 (after 5 shifts), casino dealer $150 (10 more, needs a blazer), pit boss $250 (20 more, needs a suit). One shift a day.
+
+## Poker: Texas Hold'em (Nov 2026)
+
+In the casino (blazer gets you in). Buy-in $100, blinds $1/$2, four seats, the house rakes 5% of contested pots. Fold, check/call, raise (half pot, max three raises a round), all in; side pots handled. Chips on the table are saved; a hand in progress is not.
+
+Regulars: **Big Sue** (tight, has it when she bets), **Reverend Al** (bluffs 30% of weak hands and tugs his collar on most bluffs, and now and then on a real hand), **Grandma Ruth** (calls almost anything). They estimate their hand by dealing out the rest of the cards 30 times. Poker is the one game where good play wins in the long run (a simple strength-based player averaged about +$5 a hand in simulation; calling everything loses about $23 a hand).
+
+Planned: a five-card draw room with a $1,000 buy-in.

@@ -240,6 +240,46 @@ func _init() -> void:
 	for k in ["JOB_DISH", "JOB_WAITER", "JOB_DEALER", "JOB_PIT", "BTN_MEAL", "PROMO_SHIFTS", "PROMO_OUTFIT", "HOME_STRESS", "HOME_REP", "GOAL_JOB"]:
 		check(csv_has(k), "missing " + k)
 
+	# Poker: hand ranking, then many hands played to the end with chips conserved (minus rake).
+	var PT := GameState.PokerTable
+	check(PT.score([[14, 0], [13, 0], [12, 0], [11, 0], [10, 0], [2, 1], [3, 2]]) == [8, 14], "royal flush")
+	check(PT.score([[14, 0], [2, 1], [3, 2], [4, 3], [5, 0], [9, 1], [9, 2]]) == [4, 5], "wheel straight")
+	check(PT.score([[9, 0], [9, 1], [9, 2], [4, 3], [4, 0], [2, 1], [3, 2]])[0] == 6, "full house")
+	check(PT.score([[9, 0], [9, 1], [5, 2], [5, 3], [14, 0], [2, 1], [2, 2]]) == [2, 9, 5, 14], "two pair picks the best kicker")
+	check(PT.score([[9, 0], [9, 1], [5, 2], [6, 3], [14, 0], [2, 1], [3, 2]]) > PT.score([[14, 1], [13, 1], [5, 2], [6, 3], [9, 2], [2, 1], [3, 2]]), "pair beats ace high")
+	var ps := GameState.new(21)
+	ps.owned.append("ITEM_BLAZER")
+	ps.money = 50
+	check(ps.pk_sit().is_empty(), "poker needs the buy-in")
+	ps.money = 500
+	check(ps.pk_sit().key == "PK_SIT" and ps.money == 400 and ps.pk_stack == 100, "sit down with $100")
+	var hands := 0
+	var raked := 0
+	for i in 300:
+		if ps.pk_stack < 2: # felted: buy back in
+			ps.pk_leave()
+			ps.money = 500
+			ps.pk_sit()
+		if not ps.pk_deal():
+			break
+		var tb = ps.pk_table()
+		var chips: int = tb.stacks[0] + tb.stacks[1] + tb.stacks[2] + tb.stacks[3] + tb.pot()
+		var guard := 0
+		while tb.in_hand and guard < 60:
+			ps.pk_act(["call", "call", "raise", "fold", "allin"][(i + guard) % 5] if tb.to_call(0) > 0 or guard % 2 == 0 else "call")
+			guard += 1
+		var after: int = tb.stacks[0] + tb.stacks[1] + tb.stacks[2] + tb.stacks[3]
+		check(not tb.in_hand and after <= chips and after >= chips - chips * 5 / 100 - 1, "hand %d ends, chips conserved minus rake" % i)
+		check(tb.board.size() <= 5 and not tb.result.is_empty(), "hand %d has a result" % i)
+		raked += chips - after
+		hands += 1
+	check(hands > 20 and raked > 0, "poker played %d hands, rake %d" % [hands, raked])
+	ps.pk_stack = maxi(ps.pk_stack, 5)
+	var left: int = ps.pk_stack
+	var cash: int = ps.money
+	ps.pk_leave()
+	check(ps.money == cash + left and ps.pk_stack == 0, "cash out the stack")
+
 	# Every morning event resolves on both choices.
 	for ev in GameState.EVENTS:
 		for choice in 2:
@@ -265,7 +305,11 @@ func _init() -> void:
 		"EVENT_FOUND_CHIP", "END_EVICTED", "SPORT_WIN", "SPORT_LOSE_1",
 		"SPORT_LOSE_2", "SPORT_NO_MATCHES", "SPIN_WIN", "SPIN_LOSE"]
 	# Every key literal in the rules file.
-	var src := FileAccess.get_file_as_string("res://scripts/game_state.gd")
+	var src := FileAccess.get_file_as_string("res://scripts/game_state.gd") + FileAccess.get_file_as_string("res://scripts/poker_table.gd")
+	for i in 9:
+		keys.append("PK_HAND_%d" % i)
+	keys.append_array(["PK_SUE", "PK_REV", "PK_RUTH", "PK_ACT_fold", "PK_ACT_check", "PK_ACT_call", "PK_ACT_raise", "PK_ACT_allin", "PK_TELL",
+		"PK_SIT_BTN", "PK_DEAL", "PK_FOLD_BTN", "PK_CHECK_BTN", "PK_CALL_BTN", "PK_RAISE_BTN", "PK_ALLIN_BTN", "PK_LEAVE_BTN", "PK_HUD", "PK_WELCOME", "PK_POT", "BTN_POKER", "PK_YOU"])
 	var re := RegEx.create_from_string('"key": "([A-Z_0-9]+)"')
 	for m in re.search_all(src):
 		if not m.get_string(1).ends_with("_"): keys.append(m.get_string(1))

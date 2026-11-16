@@ -393,6 +393,7 @@ func _open_place(id: String) -> void:
 					Game.make_button(box, tr("BTN_SPORTS" if id == "BETS" else "BTN_ROULETTE"), Game.go.bind("sports" if id == "BETS" else "roulette"))
 					if id == "CASINO":
 						Game.make_button(box, tr("BTN_BLACKJACK"), Game.go.bind("blackjack"))
+						Game.make_button(box, tr("BTN_POKER") % s.POKER_BUYIN, Game.go.bind("poker"))
 			"DERBY":
 				Game.make_button(box, tr("BTN_DERBY"), Game.go.bind("race"))
 			"EVENT":
