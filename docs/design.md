@@ -118,4 +118,5 @@ No action limit per day (decided: free play first, restrict later if needed). St
 
 - **Stress 0..100.** Up: a lost bet +5, a shift +6, missing Joey +15, losing a home +20, sleeping in debt +5. Down: a won bet -3, sleep -15 (better homes help), one proper meal a day at the diner ($15) -12. At 80+ a shift can go wrong (half pay). At 100 the clinic takes $50 overnight.
 - **Reputation** is the old Vinnie `rep`, now shown on the dashboard. Promotions add to it.
+- **Roach training** has no cap and no daily limit: each level costs $20 x current speed, and the purse is $120 + $20 x speed.
 - **Career.** Dishwasher $60, waiter $90 (after 5 shifts), casino dealer $150 (10 more, needs a blazer), pit boss $250 (20 more, needs a suit). One shift a day.

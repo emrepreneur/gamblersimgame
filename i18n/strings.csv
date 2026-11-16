@@ -125,7 +125,7 @@ RACE_RAID,"Police raid! Everyone runs, roaches included. $%d gone.","Polis bask�
 RACE_WIN,"%s wins! Larry pockets $%d and kisses the cardboard.","%s kazandı! Larry $%d cebe atıp kartonu öpüyor."
 RACE_LOSE,"%s wins. Larry's $%d stays in the garage. Forever.","%s kazandı. Larry'nin $%d'ı garajda kaldı. Sonsuza dek."
 ROACH_BUY,Buy your own racing roach ($%d),Kendi yarış hamamböceğini al ($%d)
-ROACH_STATS,%s · speed %d/%d,%s · hız %d/%d
+ROACH_STATS,"%s · Speed %d · Prize $%d","%s · Hız %d · Ödül $%d"
 ROACH_TRAIN,Train ($%d),Antrenman ($%d)
 ROACH_ENTER,Enter race ($%d),Yarışa sok ($%d)
 ROACH_BOUGHT,"Meet %s. Cost $%d. Larry already loves it more than his car.","İşte %s. Fiyatı $%d. Larry onu şimdiden arabasından çok seviyor."

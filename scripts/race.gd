@@ -137,11 +137,11 @@ func _refresh() -> void:
 	if s.roach.is_empty():
 		Game.make_button(stable, tr("ROACH_BUY") % s.ROACH_PRICE, _act.bind(s.buy_roach)).disabled = running or s.money < s.ROACH_PRICE
 	else:
-		Game.make_label(stable, tr("ROACH_STATS") % [s.roach.name, s.roach.speed, s.ROACH_MAX]).add_theme_font_size_override("font_size", 24)
+		Game.make_label(stable, tr("ROACH_STATS") % [s.roach.name, s.roach.speed, s.PURSE + s.roach.speed * 20]).add_theme_font_size_override("font_size", 24)
 		var row := HBoxContainer.new()
 		stable.add_child(row)
-		var tb := Game.make_button(row, tr("ROACH_TRAIN") % s.TRAIN_COST, _act.bind(s.train_roach))
-		tb.disabled = running or s.roach.trained_day == s.day or s.money < s.TRAIN_COST or s.roach.speed >= s.ROACH_MAX
+		var tb := Game.make_button(row, tr("ROACH_TRAIN") % s.train_cost(), _act.bind(s.train_roach))
+		tb.disabled = running or s.money < s.train_cost()
 		var eb := Game.make_button(row, tr("ROACH_ENTER") % s.ENTRY_FEE, _act.bind(s.enter_roach))
 		eb.disabled = running or s.roach.raced_day == s.day or s.own_in_field() >= 0 or s.money < s.ENTRY_FEE
 		for x in [tb, eb]:

@@ -583,7 +583,6 @@ const ROACH_PRICE := 150
 const TRAIN_COST := 20
 const ENTRY_FEE := 25
 const PURSE := 120
-const ROACH_MAX := 10
 
 var field: Array = [] # [[name, speed], ...]; own roach is the one named roach.name
 var roach := {} # Larry's own: {name, speed, trained_day, raced_day}
@@ -655,7 +654,7 @@ func run_race(bets: Dictionary) -> Dictionary:
 		if bets.has(first):
 			out.win = int(bets[first] * roach_odds(chances[first]))
 		if own == first:
-			out.purse = PURSE + roach.speed * 10
+			out.purse = PURSE + roach.speed * 20
 			roach.wins = roach.get("wins", 0) + 1
 		money += out.win + out.purse
 	if staked > 0 or out.raid:
@@ -683,14 +682,19 @@ func buy_roach() -> Dictionary:
 
 
 func train_roach() -> Dictionary:
-	if roach.is_empty() or roach.trained_day == day or money < TRAIN_COST or roach.speed >= ROACH_MAX:
+	var cost := train_cost()
+	if roach.is_empty() or money < cost:
 		return {}
-	money -= TRAIN_COST
-	roach.trained_day = day
+	money -= cost
 	if rng.randi_range(1, 100) <= 25:
-		return {"key": "ROACH_LAZY", "args": [TRAIN_COST]}
+		return {"key": "ROACH_LAZY", "args": [cost]}
 	roach.speed += 1
 	return {"key": "ROACH_TRAINED", "args": [roach.speed]}
+
+
+## No cap and no daily limit: every level costs more than the last, and the purse grows with speed.
+func train_cost() -> int:
+	return TRAIN_COST * int(roach.get("speed", 1))
 
 
 ## Put Larry's roach in the next race (once a day, costs an entry fee).

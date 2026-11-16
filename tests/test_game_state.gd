@@ -95,8 +95,14 @@ func _init() -> void:
 	rd.money = 1000
 	check(rd.buy_roach().key == "ROACH_BOUGHT" and rd.roach.speed == 3, "buy a roach")
 	check(rd.buy_roach().is_empty(), "only one roach")
-	rd.train_roach()
-	check(rd.train_roach().is_empty(), "train once a day")
+	var cost0: int = rd.train_cost()
+	for i in 40: # no daily limit, no cap
+		rd.money = 100000
+		rd.train_roach()
+	check(rd.roach.speed > 10 and rd.train_cost() > cost0, "training never caps and gets pricier")
+	rd.money = rd.train_cost() - 1
+	check(rd.train_roach().is_empty(), "can't train without the money")
+	rd.money = 1000
 	check(rd.enter_roach().key == "ROACH_ENTERED" and rd.own_in_field() >= 0, "enter own roach")
 	check(rd.enter_roach().is_empty(), "one race a day for your roach")
 	var before := rd.money
