@@ -100,22 +100,39 @@ func _has(key: String) -> bool:
 
 # --- Drawing --------------------------------------------------------------
 
+# Per home: wall, wall stripe, skirting, floor, floor line, bed cover.
+const LOOKS := [
+	["#6b4f7a", "#5e4570", "#3a2a44", "#7a4b2e", "#6e4228", "#a33b3b"], # motel: tired purple, mystery carpet
+	["#d9cdb4", "#d2c5aa", "#8a6a48", "#a9774a", "#96683f", "#2f6f8f"], # flat: clean cream, real wood
+	["#2c3a4f", "#293648", "#d7b46a", "#3b2f2a", "#33282a", "#8d3045"], # suite: navy and gold
+	["#e9e2d2", "#e3dbc9", "#b98d5a", "#c9a27a", "#b8926c", "#116b50"], # ranch: sun-bleached
+]
+
 func _draw_room() -> void:
 	var r := room
 	var s = Game.state
 	var font := get_theme_default_font()
-	# Wallpaper with tired stripes, and a water stain.
+	var look: Array = LOOKS[s.home]
+	# Walls and floor. Only the motel gets the water stain and the mystery stain.
 	for i in 18:
-		r.draw_rect(Rect2(i * 40, 0, 40, 600), Color("#6b4f7a") if i % 2 == 0 else Color("#5e4570"))
-	r.draw_circle(Vector2(150, 70), 46, Color("#4e3a5c", 0.6))
-	r.draw_rect(Rect2(0, 590, 720, 14), Color("#3a2a44"))
-	# Carpet with a mystery stain.
-	r.draw_rect(Rect2(0, 604, 720, 256), Color("#7a4b2e"))
+		r.draw_rect(Rect2(i * 40, 0, 40, 600), Color(look[0]) if i % 2 == 0 else Color(look[1]))
+	r.draw_rect(Rect2(0, 590, 720, 14), Color(look[2]))
+	r.draw_rect(Rect2(0, 604, 720, 256), Color(look[3]))
 	for i in 12:
-		r.draw_line(Vector2(0, 620 + i * 22), Vector2(720, 610 + i * 22), Color("#6e4228"), 2)
-	r.draw_set_transform(Vector2(560, 780), 0, Vector2(1.8, 0.6))
-	r.draw_circle(Vector2.ZERO, 40, Color("#5a3420", 0.7))
-	r.draw_set_transform(Vector2.ZERO)
+		r.draw_line(Vector2(0, 620 + i * 22), Vector2(720, 610 + i * 22), Color(look[4]), 2)
+	if s.home == 0:
+		r.draw_circle(Vector2(150, 70), 46, Color("#4e3a5c", 0.6))
+		r.draw_set_transform(Vector2(560, 780), 0, Vector2(1.8, 0.6))
+		r.draw_circle(Vector2.ZERO, 40, Color("#5a3420", 0.7))
+		r.draw_set_transform(Vector2.ZERO)
+	else: # a rug and a plant: somebody lives here on purpose
+		r.draw_set_transform(Vector2(540, 770), 0, Vector2(2.2, 0.7))
+		r.draw_circle(Vector2.ZERO, 60, Color(look[5]).darkened(0.2))
+		r.draw_arc(Vector2.ZERO, 50, 0, TAU, 32, Color(look[2]), 3)
+		r.draw_set_transform(Vector2.ZERO)
+		r.draw_rect(Rect2(668, 610, 40, 46), Color("#b5653a"))
+		for a in [-0.9, -0.3, 0.3, 0.9]:
+			r.draw_line(Vector2(688, 612), Vector2(688, 612) + Vector2.from_angle(a - PI / 2) * 70, Color("#2e8b57"), 7)
 
 	_draw_window(r)
 	_draw_calendar(r, font)
@@ -125,8 +142,8 @@ func _draw_room() -> void:
 	r.draw_rect(Rect2(20, 500, 320, 110), Color("#5a3820"))
 	r.draw_rect(Rect2(30, 450, 300, 60), Color("#d8d2c0"))
 	r.draw_rect(Rect2(40, 430, 90, 36), Color("#f1ece0"))
-	r.draw_rect(Rect2(130, 455, 200, 70), Color("#a33b3b"))
-	r.draw_line(Vector2(130, 470), Vector2(330, 470), Color("#c95454"), 4)
+	r.draw_rect(Rect2(130, 455, 200, 70), Color(look[5]))
+	r.draw_line(Vector2(130, 470), Vector2(330, 470), Color(look[5]).lightened(0.2), 4)
 	# Wall shelf.
 	r.draw_rect(Rect2(60, 346, 170, 12), Color("#4a2e1a"))
 	# Nightstand + lamp.
@@ -179,6 +196,17 @@ func _draw_window(r: Control) -> void:
 	for i in 9:
 		var sp := Vector2(440 + fmod(i * 73.0, 200), 80 + fmod(i * 41.0, 90))
 		r.draw_circle(sp, 1.6, Color(1, 1, 0.9, 0.5 + 0.5 * sin(t * 2 + i)))
+	if Game.state.home > 0: # a skyline instead of the motel sign: lit windows, higher floors
+		for i in 6:
+			var h := 60 + fmod(i * 47.0, 90)
+			r.draw_rect(Rect2(436 + i * 36, 300 - h, 30, h), Color("#232a4a"))
+			for k in int(h / 22):
+				if (i + k) % 3 != 0:
+					r.draw_rect(Rect2(442 + i * 36, 292 - h + 8 + k * 22, 8, 10), Color("#f7d774", 0.5 + 0.3 * sin(t + i + k)))
+		r.draw_rect(Rect2(w.position.x, 270, w.size.x, 30), Color("#2a2a33")) # the street his car is parked on
+		r.draw_line(Vector2(w.get_center().x, 70), Vector2(w.get_center().x, 300), Color("#3a2414"), 6)
+		r.draw_line(Vector2(430, 185), Vector2(650, 185), Color("#3a2414"), 6)
+		return
 	# Neon MOTEL sign across the street, buzzing.
 	var on := fmod(t, 4.0) > 0.25
 	var neon := Color("#ff4fd8") if on else Color("#5a2050")
